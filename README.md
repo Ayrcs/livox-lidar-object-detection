@@ -33,8 +33,7 @@ implémenté ; son contrat de lancement prévu est :
 colcon build --packages-select lidar_detection_ros
 source install/setup.bash
 ros2 launch lidar_detection_ros detection.launch.py \
-  model_path:=/chemin/vers/model.pth \
-  config_path:=/chemin/vers/config.py \
+  model_path:=/chemin/vers/le/dossier_du_modele \
   input_topic:=/utlidar/cloud_livox_mid360
 ```
 

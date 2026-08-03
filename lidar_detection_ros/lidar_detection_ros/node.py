@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 import json
 import time
 from threading import Thread
@@ -21,6 +20,7 @@ from lidar_detection_ros.backends import MMDetection3DBackend
 from lidar_detection_ros.diagnostics import diagnostic_array_message, diagnostic_values
 from lidar_detection_ros.messages import detection_payload, marker_array_message
 from lidar_detection_ros.latest_slot import LatestValueSlot
+from lidar_detection_ros.model_package import resolve_model_package
 from lidar_detection_ros.pointcloud_adapter import pointcloud2_to_model_array
 
 
@@ -39,19 +39,17 @@ class LidarDetectionNode(Node):
         self.declare_parameter("correct_upside_down", True)
         self.declare_parameter("warmup", True)
 
-        model_path = Path(str(self.get_parameter("model_path").value))
-        config_path = Path(str(self.get_parameter("config_path").value))
-        if not model_path.is_file():
-            raise ValueError("model_path must point to a readable .pth checkpoint")
-        if not config_path.is_file():
-            raise ValueError("config_path must point to the packaged MMDetection3D config.py")
+        model_package = resolve_model_package(
+            str(self.get_parameter("model_path").value),
+            config_path=str(self.get_parameter("config_path").value) or None,
+        )
 
         self._correct_upside_down = bool(self.get_parameter("correct_upside_down").value)
         self._corrected_frame = str(self.get_parameter("corrected_frame").value)
         self._device = str(self.get_parameter("device").value)
         self._backend = MMDetection3DBackend(
-            config_path=config_path,
-            checkpoint_path=model_path,
+            config_path=model_package.config_path,
+            checkpoint_path=model_package.checkpoint_path,
             device=self._device,
             class_names=("ball",),
             score_threshold=float(self.get_parameter("score_threshold").value),

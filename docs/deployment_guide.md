@@ -87,11 +87,14 @@ sudo docker run --rm --runtime nvidia --network host --ipc host \
   -v "$PWD/model_registry/ball_pointpillars_pilot_v0.1.0:/model:ro" \
   lidar-detection-jetson:0.1.0 \
   ros2 launch lidar_detection_ros detection.launch.py \
-    model_path:=/model/model.pth \
-    config_path:=/model/config.py \
+    model_path:=/model \
     input_topic:=/utlidar/cloud_livox_mid360 \
     score_threshold:=0.10
 ```
+
+Lorsque `model_path` désigne un dossier, le nœud vérifie tous les fichiers de
+`SHA256SUMS`, puis résout automatiquement `model.pth` et `config.py`. Il refuse
+de démarrer si le paquet est incomplet ou si une empreinte ne correspond pas.
 
 Contrôles fonctionnels :
 

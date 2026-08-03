@@ -7,7 +7,7 @@ from launch_ros.actions import Node
 def generate_launch_description() -> LaunchDescription:
     arguments = [
         DeclareLaunchArgument("model_path"),
-        DeclareLaunchArgument("config_path"),
+        DeclareLaunchArgument("config_path", default_value=""),
         DeclareLaunchArgument("input_topic", default_value="/utlidar/cloud_livox_mid360"),
         DeclareLaunchArgument("json_topic", default_value="/lidar/detections_json"),
         DeclareLaunchArgument("marker_topic", default_value="/lidar/detection_markers"),
