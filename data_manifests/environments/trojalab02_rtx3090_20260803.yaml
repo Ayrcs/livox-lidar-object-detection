@@ -1,0 +1,26 @@
+schema_version: 1
+environment_id: trojalab02_rtx3090_20260803
+observed_date: "2026-08-03"
+role: reference_training_host
+operating_system:
+  distribution: Ubuntu
+  version: 22.04.5 LTS
+  codename: jammy
+  kernel: 6.8.0-136-generic
+  architecture: x86_64
+gpu:
+  model: NVIDIA GeForce RTX 3090
+  memory_mib: 24576
+  driver_version: 580.173.02
+  driver_reported_cuda_max: "13.0"
+container_runtime:
+  docker_version: 29.6.2
+  docker_build: dfc4efb
+  user_socket_access: false
+  nvidia_runtime_verified: false
+storage:
+  filesystem_size_gib: 917
+  used_gib: 266
+  available_gib: 606
+  use_percent: 31
+verification_status: docker_access_and_nvidia_runtime_pending

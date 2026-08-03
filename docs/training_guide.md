@@ -33,6 +33,11 @@ Ces versions respectent les contraintes publiées par MMDetection3D 1.4.0.
 Le Mac sert à préparer les données, pas à l'entraînement officiel, car les
 opérations CUDA de MMDetection3D n'y sont pas disponibles.
 
+Le premier hôte retenu est documenté dans
+`docs/training_machine_trojalab02.md`. Les caractéristiques machine ne doivent
+jamais rester uniquement dans un journal de terminal : chaque nouvel hôte doit
+recevoir un manifeste sous `data_manifests/environments/`.
+
 ## Ordre d'exécution
 
 Depuis la racine du dépôt sur la machine NVIDIA :
