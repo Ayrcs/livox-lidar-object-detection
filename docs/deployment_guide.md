@@ -22,7 +22,7 @@ traitement `processing_ms`. Il fournit également les coordonnées équivalentes
 dans le repère source ainsi que les compteurs `received_frames` et
 `dropped_frames`. Un worker dédié conserve uniquement le dernier nuage reçu :
 une trame obsolète est remplacée au lieu d'augmenter la latence. Les marqueurs
-sont des cubes rouges exprimés directement
+dessinent les arêtes rouges des boîtes et leur étiquette, directement
 dans le `frame_id` du PointCloud2. Foxglove et RViz peuvent donc les superposer
 au nuage sans transformation TF supplémentaire.
 
@@ -94,6 +94,13 @@ préfixe. Sans cette étape, `ros2 launch` ne voit que les paquets de
 La couche applicative expose également le console script installé par `pip`
 dans `/usr/local/lib/lidar_detection_ros`, le répertoire `libexec` attendu par
 ROS 2 Foxy pour lancer un nœud Python.
+
+Le wheel PyTorch NVIDIA de cette image expose une version réduite de
+`torch.distributed`, sans `ReduceOp`. MMEngine consulte pourtant ce symbole à
+l'import, y compris pour une inférence locale qui n'utilise aucune opération
+distribuée. Le backend installe donc, avant l'import de MMDetection3D, le strict
+espace de noms manquant. Cette compatibilité permet l'inférence mono-GPU ; elle
+ne prétend pas ajouter l'entraînement distribué au wheel Jetson.
 
 ## Test du GPU et des versions
 

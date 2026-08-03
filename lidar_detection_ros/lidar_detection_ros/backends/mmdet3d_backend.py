@@ -11,6 +11,39 @@ import numpy as np
 from lidar_detection_ros.types import Detection3D
 
 
+def ensure_jetson_torch_distributed_compatibility(torch_module: Any = None) -> bool:
+    """Provide the API surface MMEngine imports on NVIDIA's Jetson PyTorch.
+
+    Some Jetson PyTorch wheels expose ``torch.distributed`` without
+    ``ReduceOp``. MMEngine evaluates that symbol while importing, even for
+    single-process inference. The placeholder only lets that import complete;
+    it does not add distributed-training support.
+
+    Returns ``True`` when the compatibility placeholder was installed.
+    """
+
+    if torch_module is None:  # pragma: no cover - exercised in Jetson container
+        import torch as torch_module
+
+    distributed = getattr(torch_module, "distributed", None)
+    if distributed is None or hasattr(distributed, "ReduceOp"):
+        return False
+
+    class ReduceOp:
+        SUM = "sum"
+        PRODUCT = "product"
+        MIN = "min"
+        MAX = "max"
+        BAND = "band"
+        BOR = "bor"
+        BXOR = "bxor"
+        AVG = "avg"
+        PREMUL_SUM = "premul_sum"
+
+    distributed.ReduceOp = ReduceOp
+    return True
+
+
 def _to_numpy(value: Any) -> np.ndarray:
     """Convert a Torch-like tensor or an array to a CPU NumPy array."""
 
@@ -102,6 +135,7 @@ class MMDetection3DBackend:
         score_threshold: float = 0.10,
         fixed_box_sizes: dict[str, tuple[float, float, float]] | None = None,
     ) -> None:
+        ensure_jetson_torch_distributed_compatibility()
         try:
             from mmdet3d.apis import init_model
         except ImportError as exc:  # pragma: no cover - exercised in GPU container
