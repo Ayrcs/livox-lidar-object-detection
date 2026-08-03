@@ -55,19 +55,36 @@ GPU `Orin`, PyTorch `2.0.0a0+ec3941ad.nv23.02`, MMCV `2.1.0`, MMDetection
 
 ## Construction sur le robot
 
-Depuis la racine du dépôt :
+L'environnement lourd et l'application sont séparés :
+
+- `lidar-detection-jetson-base:0.1.0` contient ROS, PyTorch, MMCV et
+  MMDetection3D ;
+- `lidar-detection-jetson:0.1.0` contient seulement le code du nœud.
+
+Depuis la racine du dépôt, le script construit la base uniquement si elle
+n'existe pas, puis reconstruit la couche applicative :
 
 ```bash
-sudo docker build \
-  --network host \
-  -f docker/inference-jetson.Dockerfile \
-  -t lidar-detection-jetson:0.1.0 \
-  .
+sudo ./docker/build-jetson.sh
 ```
 
 MMCV et MMDetection3D compilent des extensions CUDA ARM64. Cette première
-construction est longue ; les constructions suivantes réutilisent le cache
-Docker.
+construction est longue. Tant que le tag de base ne change pas, les évolutions
+du code ne recompilent plus MMCV.
+
+### Migration depuis l'ancienne image combinée
+
+Si `lidar-detection-jetson:0.1.0` a déjà été construit avec l'ancien
+Dockerfile combiné, il contient toutes les dépendances lourdes. Il peut devenir
+la base sans recompilation :
+
+```bash
+sudo docker tag \
+  lidar-detection-jetson:0.1.0 \
+  lidar-detection-jetson-base:0.1.0
+
+sudo ./docker/build-jetson.sh
+```
 
 Le point d'entrée source ROS Foxy puis ajoute `/usr/local` à
 `AMENT_PREFIX_PATH`, car le paquet `ament_python` est installé par `pip` dans ce
