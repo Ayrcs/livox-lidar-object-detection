@@ -4,8 +4,7 @@ FROM nvcr.io/nvidia/l4t-pytorch:r35.2.1-pth2.0-py3
 ARG DEBIAN_FRONTEND=noninteractive
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
-    RMW_IMPLEMENTATION=rmw_cyclonedds_cpp \
-    PYTHONPATH=/opt/lidar_detection/lidar_detection_training/src
+    RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -50,11 +49,8 @@ RUN python3 -m pip install --no-cache-dir --upgrade "pip<25" \
     && python3 -m pip install --no-cache-dir mmdet3d==1.4.0
 
 WORKDIR /opt/lidar_detection
-COPY lidar_detection_training/pyproject.toml lidar_detection_training/pyproject.toml
-COPY lidar_detection_training/src lidar_detection_training/src
 COPY lidar_detection_ros lidar_detection_ros
-RUN python3 -m pip install --no-cache-dir --no-deps ./lidar_detection_training \
-    && python3 -m pip install --no-cache-dir --no-deps ./lidar_detection_ros
+RUN python3 -m pip install --no-cache-dir --no-deps ./lidar_detection_ros
 
 COPY docker/ros_entrypoint.sh /ros_entrypoint.sh
 RUN chmod 0755 /ros_entrypoint.sh

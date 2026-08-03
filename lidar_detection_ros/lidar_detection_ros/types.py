@@ -1,5 +1,7 @@
 """Framework-independent detection types."""
 
+from __future__ import annotations
+
 from dataclasses import asdict, dataclass
 
 

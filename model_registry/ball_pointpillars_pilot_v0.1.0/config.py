@@ -1,5 +1,3 @@
-custom_imports = dict(imports=['lidar_training.mmdet3d_dataset'], allow_failed_imports=False)
-
 class_names = ['ball']
 metainfo = dict(classes=class_names)
 dataset_type = 'BallLidarDataset'

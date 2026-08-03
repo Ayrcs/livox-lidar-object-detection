@@ -58,7 +58,7 @@ def detections_from_result(
 
     fixed_box_sizes = fixed_box_sizes or {}
     detections: list[Detection3D] = []
-    for box, score, label in zip(boxes, scores, labels, strict=True):
+    for box, score, label in zip(boxes, scores, labels):
         if float(score) < score_threshold:
             continue
         if label < 0 or label >= len(class_names):

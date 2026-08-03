@@ -20,10 +20,17 @@ def main() -> None:
         raise ValueError(f"unexpected checkpoint SHA-256: {actual_digest}")
     args.output_dir.mkdir(parents=True, exist_ok=True)
     shutil.copy2(args.checkpoint, args.output_dir / "model.pth")
-    shutil.copy2(
-        Path("lidar_detection_training/configs/models/pointpillars_ball_pilot.py"),
-        args.output_dir / "config.py",
+    training_config = Path(
+        "lidar_detection_training/configs/models/pointpillars_ball_pilot.py"
+    ).read_text(encoding="utf-8")
+    packaged_config = training_config.replace(
+        "custom_imports = dict(imports=['lidar_training.mmdet3d_dataset'], allow_failed_imports=False)\n\n",
+        "",
+        1,
     )
+    if packaged_config == training_config:
+        raise ValueError("expected training-only custom_imports declaration was not found")
+    (args.output_dir / "config.py").write_text(packaged_config, encoding="utf-8")
     shutil.copy2(args.run_dir / "environment.lock.txt", args.output_dir / "environment.lock.txt")
     shutil.copy2(args.run_dir / "nvidia-smi.txt", args.output_dir / "nvidia-smi.txt")
     shutil.copy2(args.run_dir / "git-commit.txt", args.output_dir / "git-commit.txt")
