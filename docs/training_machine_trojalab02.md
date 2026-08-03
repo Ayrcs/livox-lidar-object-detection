@@ -26,10 +26,14 @@ Docker. Le pilote récent est rétrocompatible avec ce runtime.
 
 ## État de Docker
 
-Le moteur Docker est installé, mais le compte d'entraînement n'avait pas accès
-au socket `/var/run/docker.sock` lors du premier diagnostic. Le runtime NVIDIA
-n'a donc pas encore été confirmé. Ces deux points doivent être validés avant de
-construire ou lancer l'image.
+Le moteur Docker est installé, mais le compte d'entraînement n'a pas accès au
+socket `/var/run/docker.sock`. Les commandes utilisent donc `sudo docker`.
+
+Le runtime `nvidia`, `nvidia-container-toolkit 1.19.1-1` et
+`libnvidia-container1 1.19.1-1` sont installés. Le passage du GPU a été vérifié
+avec l'image `nvidia/cuda:11.7.1-base-ubuntu22.04`, digest
+`sha256:3abc181c23dba195104750afcc27d9459760d9f72c3d79582306491098133a78`.
+Dans ce conteneur, `nvidia-smi` détecte bien la RTX 3090 et ses 24 576 MiB.
 
 Ne pas ajouter automatiquement un utilisateur au groupe `docker` sans accord
 de l'administrateur : ce groupe donne, en pratique, des privilèges équivalents

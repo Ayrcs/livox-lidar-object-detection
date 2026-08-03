@@ -17,10 +17,16 @@ container_runtime:
   docker_version: 29.6.2
   docker_build: dfc4efb
   user_socket_access: false
-  nvidia_runtime_verified: false
+  access_method: sudo
+  nvidia_runtime_registered: true
+  nvidia_container_toolkit_version: 1.19.1-1
+  libnvidia_container_version: 1.19.1-1
+  gpu_passthrough_verified: true
+  verification_image: nvidia/cuda:11.7.1-base-ubuntu22.04
+  verification_image_digest: sha256:3abc181c23dba195104750afcc27d9459760d9f72c3d79582306491098133a78
 storage:
   filesystem_size_gib: 917
   used_gib: 266
   available_gib: 606
   use_percent: 31
-verification_status: docker_access_and_nvidia_runtime_pending
+verification_status: ready_for_training_image_build
