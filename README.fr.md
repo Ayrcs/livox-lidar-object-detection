@@ -32,6 +32,14 @@ classe demande de créer sa taxonomie et ses annotations, d'adapter la
 configuration MMDetection3D, puis de déclarer les nouvelles classes et tailles
 dans le paquet de modèle et le nœud d'inférence.
 
+<p align="center">
+    <img
+      src="docs/assets/lidar-detection-foxglove.webp"
+      alt="Live LiDAR ball detection on a Unitree G1 in Foxglove"
+      width="700"
+    >
+</p>
+
 ## Ce qui entre et ce qui sort
 
 ### Entraînement

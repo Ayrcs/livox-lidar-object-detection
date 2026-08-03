@@ -16,6 +16,14 @@ Mid-360. It covers the complete lifecycle:
 6. run GPU inference on the G1's NVIDIA Orin and publish ROS 2 outputs for
    downstream software, Foxglove, and RViz.
 
+<p align="center">
+    <img
+      src="docs/assets/lidar-detection-foxglove.webp"
+      alt="Live LiDAR ball detection on a Unitree G1 in Foxglove"
+      width="700"
+    >
+</p>
+
 ## Project status
 
 The technical pipeline is operational from data capture to live visualization.
