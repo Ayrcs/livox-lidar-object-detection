@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "experiment": "pointpillars_ball_pilot_v1",
+  "run_timestamp": "2026-08-03T11:00:34Z",
+  "git_commit": "069b88366e1a587e12a297c2c53444e65379fda6",
+  "dataset": "ball_lidar_pilot_v1_mmdet3d",
+  "train_samples": 410,
+  "validation_samples": 113,
+  "validation_condition": "held-out static 5 m session",
+  "selected_epoch": 5,
+  "selected_checkpoint_sha256": "33f2bc0f652f5a473b8c7d690bb2a578d7dc65231c3199a22f9373668e2a5944",
+  "selected_metrics": {
+    "precision_center_0p30m": 1.0,
+    "recall_center_0p30m": 0.9646,
+    "f1_center_0p30m": 0.9820,
+    "median_center_error_m": 0.0822,
+    "false_positives_per_sample": 0.0
+  },
+  "validation_history": [
+    {"epoch": 5, "precision": 1.0, "recall": 0.9646, "f1": 0.9820, "median_center_error_m": 0.0822, "false_positives_per_sample": 0.0},
+    {"epoch": 10, "precision": 0.9052, "recall": 0.9292, "f1": 0.9170, "median_center_error_m": 0.0769, "false_positives_per_sample": 0.0973},
+    {"epoch": 15, "precision": 1.0, "recall": 0.8496, "f1": 0.9187, "median_center_error_m": 0.0821, "false_positives_per_sample": 0.0},
+    {"epoch": 20, "precision": 0.8793, "recall": 0.9027, "f1": 0.8908, "median_center_error_m": 0.0772, "false_positives_per_sample": 0.1239},
+    {"epoch": 25, "precision": 1.0, "recall": 0.8407, "f1": 0.9135, "median_center_error_m": 0.0803, "false_positives_per_sample": 0.0},
+    {"epoch": 30, "precision": 0.9439, "recall": 0.8938, "f1": 0.9182, "median_center_error_m": 0.0783, "false_positives_per_sample": 0.0531},
+    {"epoch": 35, "precision": 0.9902, "recall": 0.8938, "f1": 0.9395, "median_center_error_m": 0.0790, "false_positives_per_sample": 0.0088},
+    {"epoch": 40, "precision": 0.9902, "recall": 0.8938, "f1": 0.9395, "median_center_error_m": 0.0789, "false_positives_per_sample": 0.0088}
+  ],
+  "peak_logged_gpu_memory_mib": 446,
+  "status": "pilot_passed",
+  "limitations": [
+    "Validation is a different distance session but the same room and day.",
+    "The validation split contains no negative-only session.",
+    "Only a static ball on indoor concrete is represented.",
+    "Metrics do not establish performance for motion, grass, occlusion, or a new location."
+  ]
+}

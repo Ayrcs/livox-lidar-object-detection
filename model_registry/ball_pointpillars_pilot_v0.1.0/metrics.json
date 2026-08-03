@@ -1,0 +1,10 @@
+{
+  "split": "val_distance_holdout",
+  "distance_m": 5.0,
+  "samples": 113,
+  "precision_center_0p30m": 1.0,
+  "recall_center_0p30m": 0.9646,
+  "f1_center_0p30m": 0.9820,
+  "median_center_error_m": 0.0822,
+  "false_positives_per_sample": 0.0
+}

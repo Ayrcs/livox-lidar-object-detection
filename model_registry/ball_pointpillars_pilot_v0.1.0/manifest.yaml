@@ -1,0 +1,41 @@
+schema_version: 1
+model_name: ball_pointpillars_pilot
+model_version: 0.1.0
+status: pilot_not_for_production
+backend: pytorch_mmdetection3d
+task: lidar_3d_detection
+classes:
+  0: ball
+checkpoint:
+  file: model.pth
+  source_file: best_ball_f1_center_0p30m_epoch_5.pth
+  sha256: 33f2bc0f652f5a473b8c7d690bb2a578d7dc65231c3199a22f9373668e2a5944
+input:
+  fields: [x, y, z, intensity]
+  frame_convention: x_forward_y_left_z_up
+  point_cloud_range_m: [0.4, -1.0, -1.5, 6.0, 1.0, -0.7]
+  source_frame_observed: livox_frame
+  source_to_model_rotation_rpy_rad: [3.141592653589793, 0.0, 0.0]
+preprocessing:
+  voxel_size_m: [0.05, 0.05, 0.8]
+  sweeps: 1
+output:
+  box_order: [x, y, z, length, width, height, yaw]
+  ball_box_size_m: [0.22, 0.22, 0.22]
+  ball_yaw: 0.0
+training:
+  dataset_version: ball_lidar_pilot_v1
+  git_commit: 069b88366e1a587e12a297c2c53444e65379fda6
+  selected_epoch: 5
+  selection_metric: ball/f1_center_0p30m
+compatibility:
+  torch: 2.0.1
+  cuda_runtime: "11.7"
+  mmengine: 0.10.7
+  mmcv: 2.1.0
+  mmdet: 3.2.0
+  mmdet3d: 1.4.0
+limitations:
+  - Static indoor concrete data only.
+  - Validation uses the same location and recording day.
+  - Motion, grass, occlusion, and difficult distractors are untested.
