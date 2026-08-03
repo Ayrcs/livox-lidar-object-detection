@@ -104,6 +104,15 @@ val_pipeline = [
     dict(type='Pack3DDetInputs', keys=['points', 'gt_bboxes_3d', 'gt_labels_3d']),
 ]
 
+# Runtime inference has no ground-truth annotation. Keep this pipeline separate
+# from validation so mmdet3d.apis.inference_detector can consume a raw N x 4
+# NumPy point cloud.
+test_pipeline = [
+    dict(type='LoadPointsFromFile', coord_type='LIDAR', load_dim=4, use_dim=4),
+    dict(type='PointsRangeFilter', point_cloud_range=point_cloud_range),
+    dict(type='Pack3DDetInputs', keys=['points']),
+]
+
 train_dataloader = dict(
     batch_size=8,
     num_workers=4,
@@ -136,7 +145,22 @@ val_dataloader = dict(
         test_mode=False,
         metainfo=metainfo,
         box_type_3d='LiDAR'))
-test_dataloader = val_dataloader
+test_dataloader = dict(
+    batch_size=1,
+    num_workers=1,
+    persistent_workers=False,
+    drop_last=False,
+    sampler=dict(type='DefaultSampler', shuffle=False),
+    dataset=dict(
+        type=dataset_type,
+        data_root=data_root,
+        ann_file='ball_infos_val_distance_holdout.pkl',
+        data_prefix=dict(pts=''),
+        pipeline=test_pipeline,
+        modality=dict(use_lidar=True, use_camera=False),
+        test_mode=True,
+        metainfo=metainfo,
+        box_type_3d='LiDAR'))
 
 val_evaluator = dict(type='BallCenterMetric', match_distance_m=0.30, score_threshold=0.10)
 test_evaluator = val_evaluator

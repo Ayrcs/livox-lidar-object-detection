@@ -27,6 +27,10 @@ def test_single_class_anchor_configuration(relative_path: str) -> None:
     assert config.randomness.seed == 20260803
     assert config.randomness.deterministic is False
     assert config.default_hooks.checkpoint.save_best == "ball/f1_center_0p30m"
+    if "models/" in relative_path:
+        transforms = [step["type"] for step in config.test_dataloader.dataset.pipeline]
+        assert "LoadAnnotations3D" not in transforms
+        assert config.test_dataloader.dataset.test_mode is True
     if "overfit" in relative_path:
         assert config.train_dataloader.dataset.ann_file == "ball_infos_overfit.pkl"
         assert config.val_dataloader.dataset.ann_file == "ball_infos_overfit.pkl"
