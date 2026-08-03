@@ -129,3 +129,6 @@ ros2 topic info /lidar/detection_markers
 Dans Foxglove, ajouter `/lidar/detection_markers` à la vue 3D contenant déjà
 `/utlidar/cloud_livox_mid360`. Ajouter `/lidar/detections_json` dans un panneau
 Raw Messages pour lire les valeurs numériques.
+
+La procédure détaillée et le diagnostic d'affichage sont décrits dans
+[`foxglove_visualization.md`](foxglove_visualization.md).

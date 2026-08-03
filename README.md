@@ -24,10 +24,10 @@ python -m pip install -e './lidar_detection_training[test,rosbag,analysis]'
 pytest lidar_detection_training/tests
 ```
 
-## Démarrage ROS 2 (prévu)
+## Démarrage ROS 2
 
-La cible robot mesurée est ROS 2 Foxy. Le paquet d'inférence n'est pas encore
-implémenté ; son contrat de lancement prévu est :
+La cible robot mesurée est ROS 2 Foxy. Le paquet publie le JSON numérique, les
+marqueurs 3D Foxglove/RViz et les diagnostics :
 
 ```bash
 colcon build --packages-select lidar_detection_ros
@@ -36,6 +36,11 @@ ros2 launch lidar_detection_ros detection.launch.py \
   model_path:=/chemin/vers/le/dossier_du_modele \
   input_topic:=/utlidar/cloud_livox_mid360
 ```
+
+Le déploiement Docker sur le G1 est décrit dans
+[`docs/deployment_guide.md`](docs/deployment_guide.md) et la configuration de
+Foxglove dans
+[`docs/foxglove_visualization.md`](docs/foxglove_visualization.md).
 
 Les rosbags et datasets restent hors de Git. Le petit checkpoint pilote publié
 dans `model_registry/ball_pointpillars_pilot_v0.1.0/` est volontairement suivi
