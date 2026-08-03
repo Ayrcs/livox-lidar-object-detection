@@ -42,26 +42,26 @@ model = dict(
         in_channels=384,
         feat_channels=384,
         use_direction_classifier=False,
-        assign_per_class=True,
+        assign_per_class=False,
         anchor_generator=dict(
             type='AlignedAnchor3DRangeGenerator',
             ranges=[[0.4, -1.0, -1.25, 6.0, 1.0, -1.25]],
             sizes=[[0.22, 0.22, 0.22]],
             rotations=[0.0],
-            reshape_out=False),
+            reshape_out=True),
         diff_rad_by_sin=True,
         bbox_coder=dict(type='DeltaXYZWLHRBBoxCoder'),
         loss_cls=dict(
             type='mmdet.FocalLoss', use_sigmoid=True, gamma=2.0, alpha=0.25, loss_weight=1.0),
         loss_bbox=dict(type='mmdet.SmoothL1Loss', beta=1.0 / 9.0, loss_weight=2.0)),
     train_cfg=dict(
-        assigner=[dict(
+        assigner=dict(
             type='Max3DIoUAssigner',
             iou_calculator=dict(type='BboxOverlapsNearest3D'),
             pos_iou_thr=0.45,
             neg_iou_thr=0.25,
             min_pos_iou=0.25,
-            ignore_iof_thr=-1)],
+            ignore_iof_thr=-1),
         allowed_border=0,
         pos_weight=-1,
         debug=False),
