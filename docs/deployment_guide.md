@@ -55,11 +55,12 @@ GPU `Orin`, PyTorch `2.0.0a0+ec3941ad.nv23.02`, MMCV `2.1.0`, MMDetection
 
 ## Construction sur le robot
 
-L'environnement lourd et l'application sont séparés :
+L'environnement est séparé en trois couches :
 
 - `lidar-detection-jetson-base:0.1.0` contient ROS, PyTorch, MMCV et
   MMDetection3D ;
-- `lidar-detection-jetson:0.1.0` contient seulement le code du nœud.
+- `lidar-detection-jetson-runtime:0.2.0` ajoute la pile DDS compatible Unitree ;
+- `lidar-detection-jetson:0.2.0` contient seulement le code du nœud.
 
 Depuis la racine du dépôt, le script construit la base uniquement si elle
 n'existe pas, puis reconstruit la couche applicative :
@@ -69,8 +70,9 @@ sudo ./docker/build-jetson.sh
 ```
 
 MMCV et MMDetection3D compilent des extensions CUDA ARM64. Cette première
-construction est longue. Tant que le tag de base ne change pas, les évolutions
-du code ne recompilent plus MMCV.
+construction est longue. La couche DDS compile ensuite Cyclone DDS 0.10.2 et
+`rmw_cyclonedds_cpp` 0.7.11 sans recompiler MMCV. Tant que leurs tags ne
+changent pas, les évolutions du code ne reconstruisent que l'application.
 
 ### Migration depuis l'ancienne image combinée
 
@@ -111,11 +113,29 @@ paquet. Cette solution reste compatible avec de futurs objets : aucune classe
 n'est codée en dur dans cet adaptateur, et aucune annotation ni donnée
 d'entraînement n'est requise sur le robot.
 
+### Pourquoi la pile DDS Foxy standard n'est pas utilisée
+
+Le ROS de l'hôte ne charge pas Cyclone DDS 0.7.0 fourni par Foxy. Son overlay
+`/home/unitree/cyclonedds_ws` utilise `rmw_cyclonedds_cpp` 0.7.11 lié à
+Cyclone DDS 0.10.2. La bibliothèque effective observée est
+`/home/unitree/.local/lib/libddsc.so.0`, empreinte SHA-256
+`d44b7eb58154808b495e96bcd0e4fb3bca230eee0f68b893b911795fe521a10f`.
+
+Dans le conteneur initial, Cyclone 0.7.0 plantait à la création d'un participant
+sur `eth0`; Fast DDS échouait avec `std::bad_alloc`. Sur `wlan0`, le participant
+fonctionnait mais ne découvrait pas le LiDAR. Cyclone 0.7.0 ne pouvait par
+ailleurs pas lire l'élément XML `Interfaces` de la configuration de l'hôte.
+
+La couche `inference-jetson-dds.Dockerfile` reproduit donc les versions
+effectivement utilisées par le G1. Sa configuration fixe `eth0` et limite le
+multicast à la découverte SPDP, comme le fichier Unitree. Les commits et
+versions sont figés dans le Dockerfile pour rendre la construction répétable.
+
 ## Test du GPU et des versions
 
 ```bash
 sudo docker run --rm --runtime nvidia --network host \
-  lidar-detection-jetson:0.1.0 \
+  lidar-detection-jetson:0.2.0 \
   python3 -c "import torch, mmcv, mmdet, mmdet3d; print(torch.cuda.is_available(), torch.__version__, mmcv.__version__, mmdet.__version__, mmdet3d.__version__)"
 ```
 
@@ -127,7 +147,7 @@ répertoire est monté en lecture seule dans le conteneur :
 ```bash
 sudo docker run --rm --runtime nvidia --network host --ipc host \
   -v "$PWD/model_registry/ball_pointpillars_pilot_v0.1.0:/model:ro" \
-  lidar-detection-jetson:0.1.0 \
+  lidar-detection-jetson:0.2.0 \
   ros2 launch lidar_detection_ros detection.launch.py \
     model_path:=/model \
     input_topic:=/utlidar/cloud_livox_mid360 \

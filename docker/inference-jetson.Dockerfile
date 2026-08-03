@@ -1,6 +1,6 @@
 # Lightweight application layer. The heavyweight CUDA/MMDetection runtime is
 # built once from inference-jetson-base.Dockerfile and then kept stable.
-ARG BASE_IMAGE=lidar-detection-jetson-base:0.1.0
+ARG BASE_IMAGE=lidar-detection-jetson-runtime:0.2.0
 FROM ${BASE_IMAGE}
 
 WORKDIR /opt/lidar_detection

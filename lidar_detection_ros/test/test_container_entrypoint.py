@@ -7,5 +7,7 @@ def test_entrypoint_exposes_pip_ament_prefix() -> None:
         encoding="utf-8"
     )
     assert 'source /opt/ros/foxy/setup.bash' in entrypoint
+    assert '/opt/rmw-cyclonedds-0.7.11:${AMENT_PREFIX_PATH}' in entrypoint
+    assert '/opt/cyclonedds-0.10.2/lib:${LD_LIBRARY_PATH}' in entrypoint
     assert 'export AMENT_PREFIX_PATH="/usr/local:${AMENT_PREFIX_PATH}"' in entrypoint
     assert 'exec "$@"' in entrypoint
