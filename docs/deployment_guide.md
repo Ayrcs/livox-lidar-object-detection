@@ -69,6 +69,11 @@ MMCV et MMDetection3D compilent des extensions CUDA ARM64. Cette première
 construction est longue ; les constructions suivantes réutilisent le cache
 Docker.
 
+Le point d'entrée source ROS Foxy puis ajoute `/usr/local` à
+`AMENT_PREFIX_PATH`, car le paquet `ament_python` est installé par `pip` dans ce
+préfixe. Sans cette étape, `ros2 launch` ne voit que les paquets de
+`/opt/ros/foxy`.
+
 ## Test du GPU et des versions
 
 ```bash
