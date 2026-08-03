@@ -1,0 +1,19 @@
+schema_version: 1
+dataset_name: ball_lidar_feasibility_v1
+status: extracted_unannotated
+sample_count: 578
+canonical_manifest_sha256: 5c7a98d69a91b1499edf8f452168b87a7d49e61bfda6497015ff54d5a89ad6ad
+canonical_config: lidar_detection_training/configs/data/canonical_v1.yaml
+source_sessions:
+  - session_id: 20260730_indoor_ball_1p5m_front_static_run01
+    database_sha256: fc4d7b486dd15b7ec353de93e68f4fc12fa36e4fd54c88c51db1081e1c394fd5
+  - session_id: 20260730_indoor_ball_3m_front_static_run01
+    database_sha256: 7a10740d3ea53e63ddf0104069917afdd09ba2db977ade54c2e4018962617645
+  - session_id: 20260730_indoor_ball_5m_front_static_run01
+    database_sha256: 53c59a03843e4c30658a4720ddf716fd007002c2a3fdbe501b5d1da19619264e
+  - session_id: 20260730_indoor_no_ball_5m_paired_static_run01
+    database_sha256: ed98903fdbe27ba6361458ca19890b0aaafc04c29cb2434bf3758b887bf67bf2
+verification:
+  repeated_small_extraction_manifest_identical: true
+  first_sample_bit_exact_with_source: true
+  tests_passed: 6

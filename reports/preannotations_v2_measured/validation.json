@@ -1,0 +1,9 @@
+{
+  "box_count": 379,
+  "error_count": 0,
+  "errors": [],
+  "preannotation_manifest_sha256": "88dd21b0326176c3f31cf13c47ef71b68d3b2baab2b34b0a451f74e3cd8a9e0b",
+  "sample_count": 578,
+  "schema_version": 1,
+  "status": "valid"
+}

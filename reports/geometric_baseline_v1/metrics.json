@@ -1,0 +1,75 @@
+{
+  "experiment_name": "geometric_baseline_v1",
+  "limitations": [
+    "Detector parameters and evaluation use the same four static feasibility sessions.",
+    "The evaluated ROI is limited to the measured front corridor |Y| <= 0.8 m.",
+    "No moving ball, moving robot, occlusion, grass, or hard distractor is represented."
+  ],
+  "schema_version": 1,
+  "sessions": [
+    {
+      "candidate_false_per_frame": 0.16551724137931034,
+      "candidate_recall": 1.0,
+      "detector_latency_ms_mean": 2.7706272378242733,
+      "detector_latency_ms_p95": 3.16828362410888,
+      "duration_s": 14.432472576,
+      "frame_count": 145,
+      "label": "ball_1p5m",
+      "session_id": "20260730_indoor_ball_1p5m_front_static_run01",
+      "target_present": true,
+      "tracked_false_per_frame": 0.0,
+      "tracked_false_per_minute": 0.0,
+      "tracked_recall": 0.993103448275862,
+      "tracked_xy_error_median": 0.0428323744605495,
+      "tracked_xy_error_p95": 0.05375868635407267
+    },
+    {
+      "candidate_false_per_frame": 0.0,
+      "candidate_recall": 0.8482758620689655,
+      "detector_latency_ms_mean": 1.7108856913119812,
+      "detector_latency_ms_p95": 1.909791212528944,
+      "duration_s": 14.436196096,
+      "frame_count": 145,
+      "label": "ball_3m",
+      "session_id": "20260730_indoor_ball_3m_front_static_run01",
+      "target_present": true,
+      "tracked_false_per_frame": 0.0,
+      "tracked_false_per_minute": 0.0,
+      "tracked_recall": 0.993103448275862,
+      "tracked_xy_error_median": 0.03141454398380113,
+      "tracked_xy_error_p95": 0.04590024719087926
+    },
+    {
+      "candidate_false_per_frame": 0.0,
+      "candidate_recall": 0.7916666666666666,
+      "detector_latency_ms_mean": 1.6798044307506643,
+      "detector_latency_ms_p95": 1.922125046257861,
+      "duration_s": 14.3254848,
+      "frame_count": 144,
+      "label": "ball_5m",
+      "session_id": "20260730_indoor_ball_5m_front_static_run01",
+      "target_present": true,
+      "tracked_false_per_frame": 0.0,
+      "tracked_false_per_minute": 0.0,
+      "tracked_recall": 0.9930555555555556,
+      "tracked_xy_error_median": 0.027213147149661623,
+      "tracked_xy_error_p95": 0.039740064899798595
+    },
+    {
+      "candidate_false_per_frame": 0.006944444444444444,
+      "candidate_recall": null,
+      "detector_latency_ms_mean": 1.516232364439121,
+      "detector_latency_ms_p95": 1.6890964092453942,
+      "duration_s": 14.3301376,
+      "frame_count": 144,
+      "label": "no_ball_5m_paired",
+      "session_id": "20260730_indoor_no_ball_5m_paired_static_run01",
+      "target_present": false,
+      "tracked_false_per_frame": 0.0,
+      "tracked_false_per_minute": 0.0,
+      "tracked_recall": null,
+      "tracked_xy_error_median": null,
+      "tracked_xy_error_p95": null
+    }
+  ]
+}

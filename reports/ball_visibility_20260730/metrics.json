@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "config": "lidar_detection_training/configs/feasibility/ball_visibility_20260730.yaml",
+  "sessions": [
+    {
+      "frame_count": 145,
+      "mean": 35.772413793103446,
+      "std": 4.757201187580791,
+      "min": 25,
+      "median": 35.0,
+      "max": 53,
+      "zero_fraction": 0.0,
+      "under_3_fraction": 0.0,
+      "under_10_fraction": 0.0,
+      "session_id": "20260730_indoor_ball_1p5m_front_static_run01",
+      "label": "ball_1p5m",
+      "distance_m": 1.5,
+      "negative": false,
+      "center_xy_m": [
+        1.5,
+        0.12
+      ],
+      "floor_plane_abc": [
+        0.026967027886945386,
+        0.0064950356820065005,
+        -1.272359064063098
+      ],
+      "intensity_mean": 47.18430692114902,
+      "intensity_std": 19.20629537090814
+    },
+    {
+      "frame_count": 145,
+      "mean": 8.6,
+      "std": 3.7990924506092063,
+      "min": 1,
+      "median": 9.0,
+      "max": 20,
+      "zero_fraction": 0.0,
+      "under_3_fraction": 0.13793103448275862,
+      "under_10_fraction": 0.5586206896551724,
+      "session_id": "20260730_indoor_ball_3m_front_static_run01",
+      "label": "ball_3m",
+      "distance_m": 3.0,
+      "negative": false,
+      "center_xy_m": [
+        3.0,
+        0.24
+      ],
+      "floor_plane_abc": [
+        0.02849768992242909,
+        0.006679500318919684,
+        -1.2749728443497357
+      ],
+      "intensity_mean": 48.22213311948677,
+      "intensity_std": 20.102972070499508
+    },
+    {
+      "frame_count": 144,
+      "mean": 4.055555555555555,
+      "std": 1.6277872582204014,
+      "min": 0,
+      "median": 4.0,
+      "max": 7,
+      "zero_fraction": 0.034722222222222224,
+      "under_3_fraction": 0.18055555555555555,
+      "under_10_fraction": 1.0,
+      "session_id": "20260730_indoor_ball_5m_front_static_run01",
+      "label": "ball_5m",
+      "distance_m": 5.0,
+      "negative": false,
+      "center_xy_m": [
+        5.0,
+        0.4
+      ],
+      "floor_plane_abc": [
+        0.028802505900858363,
+        0.006692954256287344,
+        -1.275165084106078
+      ],
+      "intensity_mean": 48.93493150684932,
+      "intensity_std": 27.66895568244224
+    },
+    {
+      "frame_count": 144,
+      "mean": 0.125,
+      "std": 0.4061164310337068,
+      "min": 0,
+      "median": 0.0,
+      "max": 2,
+      "zero_fraction": 0.9027777777777778,
+      "under_3_fraction": 1.0,
+      "under_10_fraction": 1.0,
+      "session_id": "20260730_indoor_no_ball_5m_paired_static_run01",
+      "label": "no_ball_5m_paired",
+      "distance_m": 5.0,
+      "negative": true,
+      "center_xy_m": [
+        5.0,
+        0.4
+      ],
+      "floor_plane_abc": [
+        0.028351133298657023,
+        0.006476414951817565,
+        -1.2746234992225411
+      ],
+      "intensity_mean": 4.0,
+      "intensity_std": 0.4714045207910317
+    }
+  ]
+}

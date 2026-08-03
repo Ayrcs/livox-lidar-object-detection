@@ -1,0 +1,25 @@
+schema_version: 1
+annotation_set_id: ball_lidar_feasibility_preannotations_v1
+created_date: "2026-08-03"
+dataset_id: ball_lidar_feasibility_v1
+source: geometric_baseline_tracker
+review_status: unreviewed
+sample_count: 578
+box_count: 431
+empty_sample_count: 147
+difficulty_counts:
+  easy: 202
+  medium: 183
+  hard: 46
+predicted_by_tracker_count: 52
+artifacts:
+  generated_root: data/processed/ball_lidar_feasibility_v1/preannotations_v1
+  preannotation_manifest_sha256: a1bcb8e2c31b03e5c626dd3d7b6bc8c477000e144c4b4d6eb11431e958d98f2c
+  validation_report: reports/preannotations_v1/validation.json
+  validation_report_sha256: d33c087573bd8c1bbe72aea2fd1aaac4f039e324bc1b1c4c39e769d9450f9be1
+  qa_contact_sheet: reports/preannotations_v1/qa_contact_sheet.png
+  qa_contact_sheet_sha256: 4d10fc84f924540b2a30418d9a19721f90f25dff0734197f07abd149d9903d59
+limitations:
+  - All boxes are machine-generated and unreviewed.
+  - Detector parameters were tuned on the same four static feasibility sessions.
+  - No moving ball, moving robot, grass, occlusion, or hard distractor is represented.

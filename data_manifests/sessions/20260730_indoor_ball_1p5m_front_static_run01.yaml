@@ -1,0 +1,49 @@
+schema_version: 1
+session_id: 20260730_indoor_ball_1p5m_front_static_run01
+recorded_at: "2026-07-30T17:37:27+02:00"
+operator: project_operator
+
+environment:
+  site: indoor_concrete_room
+  indoor: true
+  surface: concrete_like
+  weather: not_applicable
+  notes: "Initial feasibility domain is concrete-like flooring; grass is deferred to a later generalization dataset."
+
+robot:
+  state: stationary
+  software_notes: "ROS 2 Foxy; Unitree native DDS LiDAR publisher"
+
+sensor:
+  model: Livox Mid-360
+  topic: /utlidar/cloud_livox_mid360
+  imu_topic: /utlidar/imu_livox_mid360
+  source_frame: livox_frame
+  corrected_frame: lidar_corrected
+  correction_rpy_deg: [180.0, 0.0, 0.0]
+  timestamp_offset_note: "Mid-360 clock measured approximately 70.27 s behind Jetson system clock; unresolved."
+
+targets:
+  - class_name: ball
+    specification: football_size_5
+    physical_diameter_m: 0.22
+    distance_m: 1.50
+    azimuth_deg: 0.0
+    state: stationary
+    occlusion: none
+
+distractors: []
+
+recording:
+  requested_duration_s: 15
+  storage_id: sqlite3
+  serialization_format: cdr
+  topics:
+    - /utlidar/cloud_livox_mid360
+    - /utlidar/imu_livox_mid360
+  bag_file: 20260730_indoor_ball_1p5m_front_static_run01_0.db3
+  bag_size_mib: 62.3
+  bag_duration_s: 14.444
+  cloud_message_count: 145
+  imu_message_count: 2884
+  sha256_file: SHA256SUMS

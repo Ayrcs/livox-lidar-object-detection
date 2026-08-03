@@ -1,0 +1,45 @@
+schema_version: 1
+session_id: REPLACE_ME
+recorded_at: REPLACE_ME
+operator: REPLACE_ME
+
+environment:
+  site: REPLACE_ME
+  indoor: true
+  surface: REPLACE_ME
+  weather: not_applicable
+  notes: ""
+
+robot:
+  state: stationary
+  software_notes: "ROS 2 Foxy; Unitree native DDS LiDAR publisher"
+
+sensor:
+  model: Livox Mid-360
+  topic: /utlidar/cloud_livox_mid360
+  imu_topic: /utlidar/imu_livox_mid360
+  source_frame: livox_frame
+  corrected_frame: lidar_corrected
+  correction_rpy_deg: [180.0, 0.0, 0.0]
+  timestamp_offset_note: "Approximately 70.27 s behind Jetson system clock; unresolved"
+
+targets:
+  - class_name: ball
+    physical_diameter_m: 0.22
+    distance_m: REPLACE_ME
+    azimuth_deg: 0.0
+    state: stationary
+    occlusion: none
+
+distractors: []
+
+recording:
+  requested_duration_s: 15
+  storage_id: sqlite3
+  topics:
+    - /utlidar/cloud_livox_mid360
+    - /utlidar/imu_livox_mid360
+  bag_duration_s: REPLACE_AFTER_RECORDING
+  cloud_message_count: REPLACE_AFTER_RECORDING
+  imu_message_count: REPLACE_AFTER_RECORDING
+  sha256_file: SHA256SUMS

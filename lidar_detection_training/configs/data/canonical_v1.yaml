@@ -1,0 +1,17 @@
+schema_version: 1
+dataset_name: ball_lidar_feasibility_v1
+source_topic: /utlidar/cloud_livox_mid360
+source_frame: livox_frame
+output_frame: lidar_corrected
+point_fields: [x, y, z, intensity, ring, time]
+transform:
+  description: Verified correction for upside-down physical mounting
+  roll_deg: 180.0
+  pitch_deg: 0.0
+  yaw_deg: 0.0
+  translation_m: [0.0, 0.0, 0.0]
+sessions:
+  - 20260730_indoor_ball_1p5m_front_static_run01
+  - 20260730_indoor_ball_3m_front_static_run01
+  - 20260730_indoor_ball_5m_front_static_run01
+  - 20260730_indoor_no_ball_5m_paired_static_run01

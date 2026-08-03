@@ -1,0 +1,23 @@
+schema_version: 1
+annotation_set_id: ball_lidar_feasibility_preannotations_v2_measured
+created_date: "2026-08-03"
+dataset_id: ball_lidar_feasibility_v1
+source: geometric_baseline_tracker_measured_only
+review_status: accepted_for_pilot_only
+sample_count: 578
+box_count: 379
+empty_sample_count: 199
+excluded_tracker_predictions: 52
+difficulty_counts:
+  easy: 202
+  medium: 176
+  hard: 1
+artifacts:
+  generated_root: data/processed/ball_lidar_feasibility_v1/preannotations_v2_measured
+  preannotation_manifest_sha256: 88dd21b0326176c3f31cf13c47ef71b68d3b2baab2b34b0a451f74e3cd8a9e0b
+  validation_report: reports/preannotations_v2_measured/validation.json
+  validation_report_sha256: 3af1e7cbbc2f1824da76e6f85b907b0f59d1f8d803a7c25f030619788611c6db
+limitations:
+  - Human review covered representative examples, not all 578 frames.
+  - Intended only for the first pipeline and overfit training pilot.
+  - Tracker-only predictions are excluded.

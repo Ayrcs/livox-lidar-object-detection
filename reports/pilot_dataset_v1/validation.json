@@ -1,0 +1,39 @@
+{
+  "error_count": 0,
+  "errors": [],
+  "schema_version": 1,
+  "splits": {
+    "overfit": {
+      "info_sha256": "61fa4122a2ecc74cbf2e745ac4524148f7fda4fff91aae64dd56103c54b59179",
+      "negative_samples": 16,
+      "positive_boxes": 64,
+      "samples": 80,
+      "sessions": [
+        "20260730_indoor_ball_1p5m_front_static_run01",
+        "20260730_indoor_ball_3m_front_static_run01",
+        "20260730_indoor_no_ball_5m_paired_static_run01"
+      ]
+    },
+    "train": {
+      "info_sha256": "6a49a4654708d71a3642b8e163a02eedce44a008bd217f950413c8a5e967d046",
+      "negative_samples": 144,
+      "positive_boxes": 266,
+      "samples": 410,
+      "sessions": [
+        "20260730_indoor_ball_1p5m_front_static_run01",
+        "20260730_indoor_ball_3m_front_static_run01",
+        "20260730_indoor_no_ball_5m_paired_static_run01"
+      ]
+    },
+    "val_distance_holdout": {
+      "info_sha256": "d5865aa392eafc7a0d8830b946767d92dae65135b6d2b3733b4248891f1f37ee",
+      "negative_samples": 0,
+      "positive_boxes": 113,
+      "samples": 113,
+      "sessions": [
+        "20260730_indoor_ball_5m_front_static_run01"
+      ]
+    }
+  },
+  "status": "valid"
+}

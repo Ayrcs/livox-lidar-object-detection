@@ -1,0 +1,27 @@
+schema_version: 1
+dataset_id: ball_lidar_pilot_v1
+created_date: "2026-08-03"
+status: ready_for_pilot_training
+source_dataset: ball_lidar_feasibility_v1
+annotation_set: ball_lidar_feasibility_preannotations_v2_measured
+generated_manifest_sha256: cf63fc72cb7594ef6508870060ba57bf672139d121f7607bf6334d5bac2fe29d
+splits:
+  overfit:
+    samples: 80
+    positives: 64
+    negatives: 16
+  train:
+    samples: 410
+    positives: 266
+    negatives: 144
+    sessions:
+      - 20260730_indoor_ball_1p5m_front_static_run01
+      - 20260730_indoor_ball_3m_front_static_run01
+      - 20260730_indoor_no_ball_5m_paired_static_run01
+  val_distance_holdout:
+    samples: 113
+    positives: 113
+    negatives: 0
+    sessions:
+      - 20260730_indoor_ball_5m_front_static_run01
+test_split: unavailable_with_only_four_sessions

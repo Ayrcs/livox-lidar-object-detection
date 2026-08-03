@@ -1,0 +1,35 @@
+schema_version: 1
+description: Initial static-ball visibility study on concrete-like indoor flooring
+
+floor_fit:
+  x_range_m: [0.5, 6.0]
+  abs_y_max_m: 0.8
+  z_range_m: [-1.5, -0.9]
+  residual_threshold_m: 0.025
+  iterations: 3
+
+target_roi:
+  half_size_xy_m: 0.12
+  height_range_m: [0.02, 0.24]
+
+sessions:
+  - session_id: 20260730_indoor_ball_1p5m_front_static_run01
+    label: ball_1p5m
+    distance_m: 1.5
+    center_xy_m: [1.50, 0.12]
+    negative: false
+  - session_id: 20260730_indoor_ball_3m_front_static_run01
+    label: ball_3m
+    distance_m: 3.0
+    center_xy_m: [3.00, 0.24]
+    negative: false
+  - session_id: 20260730_indoor_ball_5m_front_static_run01
+    label: ball_5m
+    distance_m: 5.0
+    center_xy_m: [5.00, 0.40]
+    negative: false
+  - session_id: 20260730_indoor_no_ball_5m_paired_static_run01
+    label: no_ball_5m_paired
+    distance_m: 5.0
+    center_xy_m: [5.00, 0.40]
+    negative: true

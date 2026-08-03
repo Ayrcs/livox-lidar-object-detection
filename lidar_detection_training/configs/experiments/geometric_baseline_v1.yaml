@@ -1,0 +1,32 @@
+schema_version: 1
+experiment_name: geometric_baseline_v1
+description: Pilot front-corridor baseline tuned only on the four static feasibility sessions
+dataset_root: data/processed/ball_lidar_feasibility_v1
+ground_truth_config: lidar_detection_training/configs/feasibility/ball_visibility_20260730.yaml
+match_distance_m: 0.30
+
+detector:
+  roi_min_xyz: [1.2, -0.8, -1.5]
+  roi_max_xyz: [6.0, 0.8, 1.0]
+  object_height_range_m: [0.025, 0.35]
+  range_cluster_eps_m:
+    - [1.2, 2.25, 0.08]
+    - [2.25, 4.0, 0.10]
+    - [4.0, 6.01, 0.15]
+  min_points: 3
+  diameter_range_m: [0.02, 0.35]
+  max_vertical_extent_m: 0.30
+  merge_distance_m: 0.25
+  floor_fit:
+    x_range_m: [0.5, 6.0]
+    abs_y_max_m: 0.8
+    z_range_m: [-1.5, -0.9]
+    residual_threshold_m: 0.025
+    iterations: 3
+
+tracker:
+  association_distance_m: 0.35
+  confirmation_hits: 2
+  max_misses: 2
+  alpha: 0.85
+  beta: 0.10

@@ -1,0 +1,25 @@
+schema_version: 1
+dataset_id: ball_lidar_pilot_v1
+description: Pilot only; static indoor concrete data, not a generalization benchmark
+canonical_root: data/processed/ball_lidar_feasibility_v1
+annotations_root: data/processed/ball_lidar_feasibility_v1/preannotations_v2_measured
+output_root: data/processed/ball_lidar_pilot_v1_mmdet3d
+classes: [ball]
+splits:
+  train:
+    sessions:
+      - 20260730_indoor_ball_1p5m_front_static_run01
+      - 20260730_indoor_ball_3m_front_static_run01
+      - 20260730_indoor_no_ball_5m_paired_static_run01
+    positive_empty_policy: exclude
+  val_distance_holdout:
+    sessions:
+      - 20260730_indoor_ball_5m_front_static_run01
+    positive_empty_policy: exclude
+negative_sessions:
+  - 20260730_indoor_no_ball_5m_paired_static_run01
+overfit_subset:
+  positive_samples: 64
+  negative_samples: 16
+point_features: [x, y, z, intensity]
+mmdet3d_box_z_convention: bottom_center

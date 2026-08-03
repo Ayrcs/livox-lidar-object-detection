@@ -1,0 +1,12 @@
+.git
+.idea
+.venv
+data
+remote-g1
+reports
+runs
+__pycache__
+*.pyc
+*.db3
+*.bag
+*.mcap
