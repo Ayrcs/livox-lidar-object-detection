@@ -1,0 +1,23 @@
+{
+  "build": {
+    "date": "2026-08-03",
+    "git_commit": "2fdf0873928449e2360f2dcd29b5fcee2fb7e47b",
+    "image_tag": "lidar-detection-jetson:0.1.0",
+    "status": "passed"
+  },
+  "gpu_import_test": {
+    "status": "pending"
+  },
+  "host": {
+    "architecture": "aarch64",
+    "docker": "24.0.7",
+    "l4t": "R35.3.1",
+    "platform": "NVIDIA Orin NX Developer Kit",
+    "ros_distribution": "foxy",
+    "ubuntu": "20.04.6"
+  },
+  "live_ros_inference": {
+    "status": "pending"
+  },
+  "schema_version": 1
+}

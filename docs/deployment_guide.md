@@ -36,6 +36,11 @@ dépendances sont isolées dans une image Docker ARM64. L'image de base NVIDIA
 famille JetPack 5/L4T R35. La compatibilité exacte avec l'hôte R35.3.1 doit être
 confirmée par le test GPU après construction.
 
+Le 3 août 2026, l'image `lidar-detection-jetson:0.1.0` a été construite avec
+succès directement sur l'Orin NX R35.3.1 à partir du commit `2fdf087`. Cette
+validation couvre la résolution des dépendances et la compilation ARM64/CUDA ;
+le chargement CUDA et l'inférence ROS restent des contrôles séparés.
+
 ## Construction sur le robot
 
 Depuis la racine du dépôt :
