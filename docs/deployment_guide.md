@@ -131,6 +131,37 @@ effectivement utilisées par le G1. Sa configuration fixe `eth0` et limite le
 multicast à la découverte SPDP, comme le fichier Unitree. Les commits et
 versions sont figés dans le Dockerfile pour rendre la construction répétable.
 
+### Adapter l'image à un autre G1
+
+Il ne faut pas choisir la version de Cyclone DDS uniquement à partir de
+`dpkg-query`. Un overlay ROS peut remplacer les bibliothèques des paquets
+système, comme sur le robot de référence. Sur chaque nouveau G1, relever avant
+la construction :
+
+```bash
+echo "$AMENT_PREFIX_PATH"
+echo "$LD_LIBRARY_PATH"
+echo "$CYCLONEDDS_URI"
+ros2 pkg prefix rmw_cyclonedds_cpp
+
+rmw_lib="$(ros2 pkg prefix rmw_cyclonedds_cpp)/lib/librmw_cyclonedds_cpp.so"
+ldd "$rmw_lib" | grep ddsc
+```
+
+Relever ensuite la version de Cyclone dans les sources ou le manifeste de son
+workspace, la révision de `rmw_cyclonedds_cpp` et le contenu du fichier désigné
+par `CYCLONEDDS_URI`. L'image doit être construite avec une combinaison
+compatible avec la bibliothèque réellement chargée sur ce robot. Si les
+versions diffèrent de Cyclone DDS 0.10.2 et du commit RMW
+`c12abc56983204f1d91f2d839d394528c7b29b42`, adapter les arguments figés dans
+`docker/inference-jetson-dds.Dockerfile`, la configuration XML et le tag de la
+couche DDS afin de forcer sa reconstruction.
+
+Après construction, valider dans cet ordre : création d'un nœud sur l'interface
+LiDAR, réception du PointCloud2 à environ 10 Hz, chargement CUDA du modèle, puis
+publication des résultats. Une réussite sur `wlan0` ne suffit pas si le LiDAR
+est publié sur `eth0`.
+
 ## Test du GPU et des versions
 
 ```bash
@@ -172,3 +203,13 @@ Raw Messages pour lire les valeurs numériques.
 
 La procédure détaillée et le diagnostic d'affichage sont décrits dans
 [`foxglove_visualization.md`](foxglove_visualization.md).
+
+## Validation réalisée sur le robot de référence
+
+Le 3 août 2026, l'image `lidar-detection-jetson:0.2.0` a été validée sur l'Orin
+NX du G1 : création du participant Cyclone DDS sur `eth0`, réception du nuage
+Livox, chargement et warm-up CUDA du checkpoint, fonctionnement continu du
+nœud, publication des résultats JSON et des marqueurs, puis superposition
+visible dans Foxglove. Les 15 à 20 secondes observées avant le message de
+chargement correspondent au démarrage initial du modèle et non au temps de
+traitement de chaque nuage.

@@ -14,6 +14,14 @@
     "pytorch": "2.0.0a0+ec3941ad.nv23.02",
     "status": "passed"
   },
+  "dds_runtime": {
+    "cyclonedds": "0.10.2",
+    "image_tag": "lidar-detection-jetson-runtime:0.2.0",
+    "interface": "eth0",
+    "multicast": "spdp",
+    "rmw_cyclonedds_commit": "c12abc56983204f1d91f2d839d394528c7b29b42",
+    "status": "passed"
+  },
   "host": {
     "architecture": "aarch64",
     "docker": "24.0.7",
@@ -23,7 +31,12 @@
     "ubuntu": "20.04.6"
   },
   "live_ros_inference": {
-    "status": "pending"
+    "foxglove_markers_visible": true,
+    "image_tag": "lidar-detection-jetson:0.2.0",
+    "input_topic": "/utlidar/cloud_livox_mid360",
+    "model_loaded_on_cuda": true,
+    "pointcloud_received_in_container": true,
+    "status": "passed"
   },
   "schema_version": 1
 }
