@@ -16,6 +16,8 @@ def detection_payload(
     correct_upside_down: bool,
     point_count: Optional[int] = None,
     processing_ms: Optional[float] = None,
+    received_frames: Optional[int] = None,
+    dropped_frames: Optional[int] = None,
 ) -> dict[str, Any]:
     """Build the stable, framework-independent JSON structure."""
 
@@ -44,6 +46,10 @@ def detection_payload(
         payload["point_count"] = int(point_count)
     if processing_ms is not None:
         payload["processing_ms"] = float(processing_ms)
+    if received_frames is not None:
+        payload["received_frames"] = int(received_frames)
+    if dropped_frames is not None:
+        payload["dropped_frames"] = int(dropped_frames)
     return payload
 
 

@@ -29,12 +29,16 @@ def test_json_payload_exposes_corrected_and_source_coordinates() -> None:
         correct_upside_down=True,
         point_count=20042,
         processing_ms=42.5,
+        received_frames=100,
+        dropped_frames=3,
     )
 
     assert payload["stamp"] == {"sec": 12, "nanosec": 34}
     assert payload["coordinate_convention"] == "x_forward_y_left_z_up"
     assert payload["point_count"] == 20042
     assert payload["processing_ms"] == 42.5
+    assert payload["received_frames"] == 100
+    assert payload["dropped_frames"] == 3
     assert payload["detections"][0]["y"] == 0.36
     assert payload["detections"][0]["source_frame_position"] == {
         "x": 4.9,

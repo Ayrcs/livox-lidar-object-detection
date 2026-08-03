@@ -18,7 +18,10 @@ Il publie deux sorties complémentaires :
 Le JSON contient les coordonnées corrigées `X avant, Y gauche, Z haut`, la
 classe, le score, la taille de boîte, le nombre de points et le temps de
 traitement `processing_ms`. Il fournit également les coordonnées équivalentes
-dans le repère source. Les marqueurs sont des cubes rouges exprimés directement
+dans le repère source ainsi que les compteurs `received_frames` et
+`dropped_frames`. Un worker dédié conserve uniquement le dernier nuage reçu :
+une trame obsolète est remplacée au lieu d'augmenter la latence. Les marqueurs
+sont des cubes rouges exprimés directement
 dans le `frame_id` du PointCloud2. Foxglove et RViz peuvent donc les superposer
 au nuage sans transformation TF supplémentaire.
 

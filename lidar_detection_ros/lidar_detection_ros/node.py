@@ -5,6 +5,9 @@ from __future__ import annotations
 from pathlib import Path
 import json
 import time
+from threading import Thread
+
+import numpy as np
 
 import rclpy
 from rclpy.node import Node
@@ -15,6 +18,7 @@ from visualization_msgs.msg import MarkerArray
 
 from lidar_detection_ros.backends import MMDetection3DBackend
 from lidar_detection_ros.messages import detection_payload, marker_array_message
+from lidar_detection_ros.latest_slot import LatestValueSlot
 from lidar_detection_ros.pointcloud_adapter import pointcloud2_to_model_array
 
 
@@ -30,6 +34,7 @@ class LidarDetectionNode(Node):
         self.declare_parameter("device", "cuda:0")
         self.declare_parameter("score_threshold", 0.10)
         self.declare_parameter("correct_upside_down", True)
+        self.declare_parameter("warmup", True)
 
         model_path = Path(str(self.get_parameter("model_path").value))
         config_path = Path(str(self.get_parameter("config_path").value))
@@ -48,6 +53,9 @@ class LidarDetectionNode(Node):
             score_threshold=float(self.get_parameter("score_threshold").value),
             fixed_box_sizes={"ball": (0.22, 0.22, 0.22)},
         )
+        if bool(self.get_parameter("warmup").value):
+            self.get_logger().info("Warming up the inference backend")
+            self._backend.predict(np.array([[1.0, 0.0, -1.0, 0.0]], dtype=np.float32))
 
         qos = QoSProfile(
             history=HistoryPolicy.KEEP_LAST,
@@ -59,12 +67,26 @@ class LidarDetectionNode(Node):
         input_topic = str(self.get_parameter("input_topic").value)
         self._json_publisher = self.create_publisher(String, json_topic, 10)
         self._marker_publisher = self.create_publisher(MarkerArray, marker_topic, 10)
-        self._subscription = self.create_subscription(PointCloud2, input_topic, self._on_cloud, qos)
+        self._latest_cloud: LatestValueSlot[PointCloud2] = LatestValueSlot()
+        self._subscription = self.create_subscription(
+            PointCloud2, input_topic, self._on_cloud_received, qos
+        )
+        self._worker = Thread(target=self._worker_loop, name="lidar-inference", daemon=True)
+        self._worker.start()
         self.get_logger().info(
             f"Listening on {input_topic}; publishing JSON on {json_topic} and markers on {marker_topic}"
         )
 
-    def _on_cloud(self, message: PointCloud2) -> None:
+    def _on_cloud_received(self, message: PointCloud2) -> None:
+        self._latest_cloud.submit(message)
+
+    def _worker_loop(self) -> None:
+        while rclpy.ok() and not self._latest_cloud.closed:
+            message = self._latest_cloud.take(timeout=0.5)
+            if message is not None:
+                self._process_cloud(message)
+
+    def _process_cloud(self, message: PointCloud2) -> None:
         try:
             started = time.perf_counter()
             points = pointcloud2_to_model_array(
@@ -72,6 +94,7 @@ class LidarDetectionNode(Node):
             )
             detections = self._backend.predict(points)
             processing_ms = (time.perf_counter() - started) * 1000.0
+            received_frames, dropped_frames = self._latest_cloud.stats
             payload = detection_payload(
                 detections,
                 source_header=message.header,
@@ -79,6 +102,8 @@ class LidarDetectionNode(Node):
                 correct_upside_down=self._correct_upside_down,
                 point_count=len(points),
                 processing_ms=processing_ms,
+                received_frames=received_frames,
+                dropped_frames=dropped_frames,
             )
             json_message = String()
             json_message.data = json.dumps(payload, separators=(",", ":"), sort_keys=True)
@@ -91,6 +116,12 @@ class LidarDetectionNode(Node):
             self._marker_publisher.publish(markers)
         except Exception as exc:  # keep the ROS executor alive on a malformed frame
             self.get_logger().error(f"LiDAR inference failed: {exc}")
+
+    def destroy_node(self) -> bool:
+        self._latest_cloud.close()
+        if hasattr(self, "_worker"):
+            self._worker.join(timeout=2.0)
+        return super().destroy_node()
 
 
 def main(args: list[str] | None = None) -> None:
