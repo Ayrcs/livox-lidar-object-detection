@@ -37,7 +37,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ENV TORCH_CUDA_ARCH_LIST=8.7 \
     FORCE_CUDA=1 \
     MAX_JOBS=4
+# NVIDIA's base image provides PyYAML 5.3.1 through distutils. pip cannot
+# uninstall that legacy package, so install the required wheel over it.
 RUN python3 -m pip install --no-cache-dir --upgrade "pip<25" \
+    && python3 -m pip install --no-cache-dir --ignore-installed "PyYAML>=6,<7" \
     && python3 -m pip install --no-cache-dir \
         "numpy<2" \
         openmim==0.3.9 \
