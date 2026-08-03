@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Required by PyTorch deterministic algorithms for cuBLAS on CUDA >= 10.2.
-export CUBLAS_WORKSPACE_CONFIG=:4096:8
-
 mode="${1:-overfit}"
 case "$mode" in
   overfit)

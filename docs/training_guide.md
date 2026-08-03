@@ -66,9 +66,13 @@ Les sorties vont dans `runs/`, avec versions de l'environnement, matériel,
 commit, logs et checkpoints. Ne pas promouvoir ce checkpoint en modèle v1 de
 production avant des acquisitions diversifiées.
 
-Le script fixe `CUBLAS_WORKSPACE_CONFIG=:4096:8`. Cette variable est nécessaire
-à cuBLAS lorsque les algorithmes déterministes de PyTorch sont activés ; elle
-évite qu'un entraînement reproductible échoue dès la première couche linéaire.
+La seed est fixée à `20260803`. Le mode CUDA strictement déterministe est en
+revanche désactivé : avec PyTorch 2.0.1, il provoque un bogue connu d'affectation
+indexée dans l'assigner d'ancres MMDetection3D. Les expériences restent
+reproductibles par leurs données, split, configuration, seed, versions et
+traces, mais deux entraînements GPU ne sont pas garantis identiques bit à bit.
+Cette limite concerne l'entraînement ; le déterminisme de l'inférence est testé
+séparément à tolérance numérique définie.
 
 ## Configuration spécifique au ballon
 

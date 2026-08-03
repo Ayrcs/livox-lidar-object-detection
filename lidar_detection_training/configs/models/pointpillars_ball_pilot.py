@@ -159,7 +159,10 @@ default_hooks = dict(
     sampler_seed=dict(type='DistSamplerSeedHook'))
 env_cfg = dict(cudnn_benchmark=False, mp_cfg=dict(mp_start_method='fork', opencv_num_threads=0))
 log_level = 'INFO'
-randomness = dict(seed=20260803, deterministic=True)
+# Strict CUDA determinism triggers a known PyTorch 2.0 advanced-indexing bug
+# in MMDetection3D's anchor assignment. The seed remains fixed, but training is
+# reproducible at the experiment level rather than bit-for-bit.
+randomness = dict(seed=20260803, deterministic=False)
 visualizer = dict(type='Det3DLocalVisualizer', vis_backends=[dict(type='LocalVisBackend')], name='visualizer')
 work_dir = 'runs/pointpillars_ball_pilot_v1'
 load_from = None
