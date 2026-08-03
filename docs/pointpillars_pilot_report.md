@@ -29,6 +29,21 @@ manqués sur 113 trames, sans boîte supplémentaire. Les époques suivantes
 réduisent encore la loss d'entraînement mais dégradent le F1 de validation :
 elles commencent donc à suradapter le modèle aux sessions d'apprentissage.
 
+## Observation lors du déploiement réel
+
+Le modèle a ensuite été exécuté en direct sur l'Orin NX du G1 et ses boîtes ont
+été superposées au PointCloud2 dans Foxglove. La chaîne d'inférence fonctionne
+et le ballon est détecté. En revanche, l'essai qualitatif montre une confiance
+faible sur certains ballons et des artefacts recevant parfois une confiance
+élevée. Aucun taux n'est rapporté ici, car cette observation n'a pas encore été
+réalisée sur un protocole annoté et comptabilisé.
+
+Ce résultat ne contredit pas les métriques à 5 m : cette validation provenait
+du même lieu et du même jour que l'entraînement, sans scène négative dans son
+split. Elle ne mesurait donc pas les distracteurs rencontrés pendant l'essai en
+direct. Le prochain dataset doit inclure explicitement ces faux positifs comme
+négatifs difficiles.
+
 ## Traçabilité
 
 - commit d'entraînement : `069b88366e1a587e12a297c2c53444e65379fda6` ;

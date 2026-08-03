@@ -19,6 +19,32 @@ l'entraînement. La session 5 m complète est tenue à l'écart. Aucune trame
 adjacente d'une même session n'est répartie entre entraînement et validation.
 Avec seulement quatre sessions, il n'existe pas encore de test indépendant.
 
+L'intégration en direct a confirmé que le ballon peut être détecté, mais elle a
+aussi révélé des confiances faibles sur la cible et des confiances élevées sur
+certains artefacts. La campagne suivante doit donc privilégier la diversité et
+les négatifs difficiles, plutôt qu'un nouvel entraînement sur les quatre mêmes
+sessions.
+
+## Dataset suivant pour un ballon robuste
+
+Conserver des sessions entières indépendantes pour `train`, `validation` et
+`test`, idéalement séparées aussi par lieu ou journée. Enregistrer au minimum :
+
+- plusieurs distances et positions latérales dans toute la zone utile ;
+- ballon immobile, roulant, partiellement masqué et momentanément sans retour ;
+- robot immobile puis mobile ;
+- béton, pelouse et autres sols visés par l'usage final ;
+- scènes sans ballon dans chacun des environnements ;
+- objets ayant produit une fausse détection, conservés sans boîte `ball` ;
+- personnes, pieds, chaussures, sacs, cônes et objets ronds comme négatifs
+  difficiles.
+
+Une session négative ne doit pas servir uniquement à l'entraînement : le jeu de
+validation et le test doivent eux aussi permettre de mesurer précision, faux
+positifs par trame et calibration des scores. Photographier ou décrire les
+artefacts problématiques dans les métadonnées afin de pouvoir analyser les
+erreurs par famille après l'entraînement.
+
 ## Environnement de référence
 
 - Linux x86_64 avec GPU NVIDIA ;
