@@ -62,8 +62,8 @@ sudo docker run --rm --runtime nvidia --network host \
 
 ## Lancement du nœud
 
-Le checkpoint reste hors de Git. Le répertoire de modèle est monté en lecture
-seule dans le conteneur :
+Le checkpoint pilote est inclus dans Git. Après un clonage du dépôt, son
+répertoire est monté en lecture seule dans le conteneur :
 
 ```bash
 sudo docker run --rm --runtime nvidia --network host --ipc host \

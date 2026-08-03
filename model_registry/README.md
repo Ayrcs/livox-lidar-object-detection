@@ -1,7 +1,8 @@
 # Registre de modèles
 
-Les modèles ne sont pas suivis directement dans Git. Chaque version immuable
-est un dossier `name_vMAJOR.MINOR.PATCH` contenant au minimum :
+Les checkpoints suffisamment petits peuvent être suivis directement dans Git
+pour simplifier la réutilisation. Chaque version immuable est un dossier
+`name_vMAJOR.MINOR.PATCH` contenant au minimum :
 
 ```text
 model.pth (ou model.onnx/model.engine)

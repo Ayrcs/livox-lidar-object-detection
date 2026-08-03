@@ -32,10 +32,13 @@ implémenté ; son contrat de lancement prévu est :
 ```bash
 colcon build --packages-select lidar_detection_ros
 source install/setup.bash
-ros2 launch lidar_detection_ros detector.launch.py \
-  model_path:=/chemin/vers/un/artefact \
+ros2 launch lidar_detection_ros detection.launch.py \
+  model_path:=/chemin/vers/model.pth \
+  config_path:=/chemin/vers/config.py \
   input_topic:=/utlidar/cloud_livox_mid360
 ```
 
-Le dépôt ne contient ni rosbag, ni annotation, ni poids. Ces artefacts sont
-volumineux et doivent être référencés par manifeste et somme SHA-256.
+Les rosbags et datasets restent hors de Git. Le petit checkpoint pilote publié
+dans `model_registry/ball_pointpillars_pilot_v0.1.0/` est volontairement suivi
+afin qu'un clonage suffise pour tester l'inférence. Chaque artefact est couvert
+par le fichier `SHA256SUMS`.

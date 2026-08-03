@@ -18,3 +18,4 @@ runs/
 *.onnx
 *.engine
 *.pth
+!model_registry/ball_pointpillars_pilot_v0.1.0/model.pth
