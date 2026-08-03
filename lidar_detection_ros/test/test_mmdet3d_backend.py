@@ -1,3 +1,5 @@
+import sys
+from types import ModuleType
 from types import SimpleNamespace
 
 import numpy as np
@@ -6,6 +8,7 @@ from lidar_detection_ros.backends.mmdet3d_backend import (
     detections_from_result,
     ensure_jetson_torch_distributed_compatibility,
     prepare_inference_config,
+    register_runtime_inference_dataset,
 )
 
 
@@ -45,11 +48,49 @@ def test_replaces_training_dataset_with_lazy_runtime_dataset() -> None:
     prepared = prepare_inference_config(config)
 
     assert prepared is config
-    assert prepared["test_dataloader"]["dataset"]["type"] == "Det3DDataset"
+    assert (
+        prepared["test_dataloader"]["dataset"]["type"]
+        == "RuntimeInferenceDataset"
+    )
     assert prepared["test_dataloader"]["dataset"]["lazy_init"] is True
     assert prepared["test_dataloader"]["dataset"]["metainfo"] == {
         "classes": ["ball"]
     }
+
+
+def test_registers_runtime_dataset_with_packaged_classes(monkeypatch) -> None:
+    class FakeDet3DDataset:
+        pass
+
+    class FakeRegistry:
+        registered = None
+
+        def register_module(self, *, name, module, force):
+            self.registered = (name, module, force)
+
+    registry = FakeRegistry()
+    mmdet3d = ModuleType("mmdet3d")
+    datasets = ModuleType("mmdet3d.datasets")
+    datasets.Det3DDataset = FakeDet3DDataset
+    registry_module = ModuleType("mmdet3d.registry")
+    registry_module.DATASETS = registry
+    monkeypatch.setitem(sys.modules, "mmdet3d", mmdet3d)
+    monkeypatch.setitem(sys.modules, "mmdet3d.datasets", datasets)
+    monkeypatch.setitem(sys.modules, "mmdet3d.registry", registry_module)
+    config = {
+        "metainfo": {"classes": ["ignored"]},
+        "test_dataloader": {
+            "dataset": {"metainfo": {"classes": ["ball", "cone"]}}
+        },
+    }
+
+    register_runtime_inference_dataset(config)
+
+    name, runtime_dataset, force = registry.registered
+    assert name == "RuntimeInferenceDataset"
+    assert force is True
+    assert issubclass(runtime_dataset, FakeDet3DDataset)
+    assert runtime_dataset.METAINFO["classes"] == ("ball", "cone")
 
 
 def test_normalizes_filters_and_fixes_ball_box() -> None:

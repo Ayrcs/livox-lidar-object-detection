@@ -105,9 +105,11 @@ ne prétend pas ajouter l'entraînement distribué au wheel Jetson.
 Le fichier de modèle conserve les chargeurs de données utilisés pour rendre
 l'entraînement reproductible. Au chargement, MMDetection3D tente normalement
 de construire le dataset personnalisé uniquement pour retrouver le nom des
-classes. Le backend remplace ce dataset d'entraînement par `Det3DDataset` en
-mode `lazy_init` et réutilise les métadonnées embarquées dans la configuration :
-aucune annotation ni donnée d'entraînement n'est requise sur le robot.
+classes. Le backend enregistre un dataset d'inférence minimal en mode
+`lazy_init`, dont les classes sont lues dynamiquement depuis les métadonnées du
+paquet. Cette solution reste compatible avec de futurs objets : aucune classe
+n'est codée en dur dans cet adaptateur, et aucune annotation ni donnée
+d'entraînement n'est requise sur le robot.
 
 ## Test du GPU et des versions
 

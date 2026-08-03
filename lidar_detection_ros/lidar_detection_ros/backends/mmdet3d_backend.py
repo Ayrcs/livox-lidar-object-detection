@@ -44,19 +44,47 @@ def ensure_jetson_torch_distributed_compatibility(torch_module: Any = None) -> b
     return True
 
 
+RUNTIME_DATASET_NAME = "RuntimeInferenceDataset"
+
+
 def prepare_inference_config(config: Any) -> Any:
     """Replace the training-only dataset used by ``init_model`` metadata lookup.
 
     MMDetection3D builds ``test_dataloader.dataset`` only to obtain its
     metainfo when an older checkpoint does not embed it. Runtime inference has
     neither annotations nor a need for the custom training dataset, so a lazy
-    built-in dataset supplies the packaged ``metainfo`` without reading data.
+    runtime dataset supplies the packaged ``metainfo`` without reading data.
     """
 
     dataset = config["test_dataloader"]["dataset"]
-    dataset["type"] = "Det3DDataset"
+    dataset["type"] = RUNTIME_DATASET_NAME
     dataset["lazy_init"] = True
     return config
+
+
+def register_runtime_inference_dataset(config: Any) -> None:
+    """Register a lazy dataset whose class metadata comes from the model package."""
+
+    from mmdet3d.datasets import Det3DDataset
+    from mmdet3d.registry import DATASETS
+
+    dataset_config = config["test_dataloader"]["dataset"]
+    metainfo = dict(dataset_config.get("metainfo", config.get("metainfo", {})))
+    classes = tuple(metainfo.get("classes", ()))
+    if not classes:
+        raise ValueError("Packaged model configuration does not declare metainfo.classes")
+    metainfo["classes"] = classes
+
+    runtime_dataset = type(
+        RUNTIME_DATASET_NAME,
+        (Det3DDataset,),
+        {"METAINFO": metainfo, "__module__": __name__},
+    )
+    DATASETS.register_module(
+        name=RUNTIME_DATASET_NAME,
+        module=runtime_dataset,
+        force=True,
+    )
 
 
 def _to_numpy(value: Any) -> np.ndarray:
@@ -161,6 +189,7 @@ class MMDetection3DBackend:
 
         self._inference_detector = self._load_inference_function()
         runtime_config = prepare_inference_config(Config.fromfile(str(config_path)))
+        register_runtime_inference_dataset(runtime_config)
         self._model = init_model(runtime_config, str(checkpoint_path), device=device)
         self._class_names = tuple(class_names)
         self._score_threshold = score_threshold
