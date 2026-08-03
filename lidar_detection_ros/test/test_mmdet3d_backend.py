@@ -5,6 +5,7 @@ import numpy as np
 from lidar_detection_ros.backends.mmdet3d_backend import (
     detections_from_result,
     ensure_jetson_torch_distributed_compatibility,
+    prepare_inference_config,
 )
 
 
@@ -28,6 +29,27 @@ def test_preserves_native_reduce_op() -> None:
 
     assert changed is False
     assert torch_module.distributed.ReduceOp is native_reduce_op
+
+
+def test_replaces_training_dataset_with_lazy_runtime_dataset() -> None:
+    config = {
+        "test_dataloader": {
+            "dataset": {
+                "type": "BallLidarDataset",
+                "ann_file": "training-only.pkl",
+                "metainfo": {"classes": ["ball"]},
+            }
+        }
+    }
+
+    prepared = prepare_inference_config(config)
+
+    assert prepared is config
+    assert prepared["test_dataloader"]["dataset"]["type"] == "Det3DDataset"
+    assert prepared["test_dataloader"]["dataset"]["lazy_init"] is True
+    assert prepared["test_dataloader"]["dataset"]["metainfo"] == {
+        "classes": ["ball"]
+    }
 
 
 def test_normalizes_filters_and_fixes_ball_box() -> None:

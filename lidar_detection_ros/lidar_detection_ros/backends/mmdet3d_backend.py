@@ -44,6 +44,21 @@ def ensure_jetson_torch_distributed_compatibility(torch_module: Any = None) -> b
     return True
 
 
+def prepare_inference_config(config: Any) -> Any:
+    """Replace the training-only dataset used by ``init_model`` metadata lookup.
+
+    MMDetection3D builds ``test_dataloader.dataset`` only to obtain its
+    metainfo when an older checkpoint does not embed it. Runtime inference has
+    neither annotations nor a need for the custom training dataset, so a lazy
+    built-in dataset supplies the packaged ``metainfo`` without reading data.
+    """
+
+    dataset = config["test_dataloader"]["dataset"]
+    dataset["type"] = "Det3DDataset"
+    dataset["lazy_init"] = True
+    return config
+
+
 def _to_numpy(value: Any) -> np.ndarray:
     """Convert a Torch-like tensor or an array to a CPU NumPy array."""
 
@@ -137,6 +152,7 @@ class MMDetection3DBackend:
     ) -> None:
         ensure_jetson_torch_distributed_compatibility()
         try:
+            from mmengine import Config
             from mmdet3d.apis import init_model
         except ImportError as exc:  # pragma: no cover - exercised in GPU container
             raise RuntimeError(
@@ -144,7 +160,8 @@ class MMDetection3DBackend:
             ) from exc
 
         self._inference_detector = self._load_inference_function()
-        self._model = init_model(str(config_path), str(checkpoint_path), device=device)
+        runtime_config = prepare_inference_config(Config.fromfile(str(config_path)))
+        self._model = init_model(runtime_config, str(checkpoint_path), device=device)
         self._class_names = tuple(class_names)
         self._score_threshold = score_threshold
         self._fixed_box_sizes = fixed_box_sizes

@@ -102,6 +102,13 @@ distribuée. Le backend installe donc, avant l'import de MMDetection3D, le stric
 espace de noms manquant. Cette compatibilité permet l'inférence mono-GPU ; elle
 ne prétend pas ajouter l'entraînement distribué au wheel Jetson.
 
+Le fichier de modèle conserve les chargeurs de données utilisés pour rendre
+l'entraînement reproductible. Au chargement, MMDetection3D tente normalement
+de construire le dataset personnalisé uniquement pour retrouver le nom des
+classes. Le backend remplace ce dataset d'entraînement par `Det3DDataset` en
+mode `lazy_init` et réutilise les métadonnées embarquées dans la configuration :
+aucune annotation ni donnée d'entraînement n'est requise sur le robot.
+
 ## Test du GPU et des versions
 
 ```bash
