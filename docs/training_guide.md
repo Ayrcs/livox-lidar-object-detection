@@ -81,3 +81,8 @@ La zone pilote couvre X de 0,4 à 6 m et Y de -1 à 1 m. Les piliers mesurent
 22 cm et le lacet n'est pas appris, car l'orientation d'une sphère n'a pas de
 sens. La métrique principale associe prédiction et ballon lorsque l'erreur du
 centre est inférieure à 30 cm.
+
+La sortie technique de classification de direction de `Anchor3DHead` reste
+activée avec un poids de loss nul. MMDetection3D 1.4 en a besoin pour fournir un
+tenseur que MMEngine peut agréger ; cette sortie n'influence pas les poids et le
+lacet publié pour `ball` reste forcé à zéro.

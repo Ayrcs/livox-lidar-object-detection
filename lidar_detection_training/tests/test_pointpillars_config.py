@@ -21,6 +21,8 @@ def test_single_class_anchor_configuration(relative_path: str) -> None:
     assert head.num_classes == 1
     assert head.assign_per_class is False
     assert head.anchor_generator.reshape_out is True
+    assert head.use_direction_classifier is True
+    assert head.loss_dir.loss_weight == 0.0
     assert isinstance(config.model.train_cfg.assigner, dict)
     assert config.randomness.seed == 20260803
     assert config.randomness.deterministic is False

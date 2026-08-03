@@ -41,7 +41,10 @@ model = dict(
         num_classes=1,
         in_channels=384,
         feat_channels=384,
-        use_direction_classifier=False,
+        # MMDetection3D 1.4 returns loss_dir=None when this head is disabled,
+        # which MMEngine 0.10 cannot aggregate. Keep the tensor-producing head
+        # enabled with zero loss weight; ball yaw is reset to zero downstream.
+        use_direction_classifier=True,
         assign_per_class=False,
         anchor_generator=dict(
             type='AlignedAnchor3DRangeGenerator',
@@ -53,7 +56,11 @@ model = dict(
         bbox_coder=dict(type='DeltaXYZWLHRBBoxCoder'),
         loss_cls=dict(
             type='mmdet.FocalLoss', use_sigmoid=True, gamma=2.0, alpha=0.25, loss_weight=1.0),
-        loss_bbox=dict(type='mmdet.SmoothL1Loss', beta=1.0 / 9.0, loss_weight=2.0)),
+        loss_bbox=dict(type='mmdet.SmoothL1Loss', beta=1.0 / 9.0, loss_weight=2.0),
+        loss_dir=dict(
+            type='mmdet.CrossEntropyLoss',
+            use_sigmoid=False,
+            loss_weight=0.0)),
     train_cfg=dict(
         assigner=dict(
             type='Max3DIoUAssigner',
