@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from typing import Any
+from typing import Any, Optional
 
 from lidar_detection_ros.types import Detection3D
 
@@ -14,6 +14,8 @@ def detection_payload(
     source_header: Any,
     corrected_frame: str,
     correct_upside_down: bool,
+    point_count: Optional[int] = None,
+    processing_ms: Optional[float] = None,
 ) -> dict[str, Any]:
     """Build the stable, framework-independent JSON structure."""
 
@@ -27,7 +29,7 @@ def detection_payload(
             "z": -detection.z if correct_upside_down else detection.z,
         }
         items.append(item)
-    return {
+    payload = {
         "schema_version": 1,
         "stamp": {
             "sec": int(source_header.stamp.sec),
@@ -38,6 +40,11 @@ def detection_payload(
         "coordinate_convention": "x_forward_y_left_z_up",
         "detections": items,
     }
+    if point_count is not None:
+        payload["point_count"] = int(point_count)
+    if processing_ms is not None:
+        payload["processing_ms"] = float(processing_ms)
+    return payload
 
 
 def marker_array_message(

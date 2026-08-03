@@ -16,10 +16,11 @@ Il publie deux sorties complémentaires :
 ```
 
 Le JSON contient les coordonnées corrigées `X avant, Y gauche, Z haut`, la
-classe, le score, la taille de boîte et les coordonnées équivalentes dans le
-repère source. Les marqueurs sont des cubes rouges exprimés directement dans le
-`frame_id` du PointCloud2. Foxglove et RViz peuvent donc les superposer au
-nuage sans transformation TF supplémentaire.
+classe, le score, la taille de boîte, le nombre de points et le temps de
+traitement `processing_ms`. Il fournit également les coordonnées équivalentes
+dans le repère source. Les marqueurs sont des cubes rouges exprimés directement
+dans le `frame_id` du PointCloud2. Foxglove et RViz peuvent donc les superposer
+au nuage sans transformation TF supplémentaire.
 
 ## Environnement cible observé
 
@@ -40,6 +41,10 @@ Le 3 août 2026, l'image `lidar-detection-jetson:0.1.0` a été construite avec
 succès directement sur l'Orin NX R35.3.1 à partir du commit `2fdf087`. Cette
 validation couvre la résolution des dépendances et la compilation ARM64/CUDA ;
 le chargement CUDA et l'inférence ROS restent des contrôles séparés.
+
+Le test du conteneur sur cette même machine confirme ensuite : CUDA disponible,
+GPU `Orin`, PyTorch `2.0.0a0+ec3941ad.nv23.02`, MMCV `2.1.0`, MMDetection
+`3.2.0` et MMDetection3D `1.4.0`.
 
 ## Construction sur le robot
 

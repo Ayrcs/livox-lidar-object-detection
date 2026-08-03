@@ -6,7 +6,13 @@
     "status": "passed"
   },
   "gpu_import_test": {
-    "status": "pending"
+    "cuda_available": true,
+    "gpu": "Orin",
+    "mmdet": "3.2.0",
+    "mmdet3d": "1.4.0",
+    "mmcv": "2.1.0",
+    "pytorch": "2.0.0a0+ec3941ad.nv23.02",
+    "status": "passed"
   },
   "host": {
     "architecture": "aarch64",

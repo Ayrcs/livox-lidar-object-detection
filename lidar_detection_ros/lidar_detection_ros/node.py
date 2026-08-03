@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import json
+import time
 
 import rclpy
 from rclpy.node import Node
@@ -65,15 +66,19 @@ class LidarDetectionNode(Node):
 
     def _on_cloud(self, message: PointCloud2) -> None:
         try:
+            started = time.perf_counter()
             points = pointcloud2_to_model_array(
                 message, correct_upside_down=self._correct_upside_down
             )
             detections = self._backend.predict(points)
+            processing_ms = (time.perf_counter() - started) * 1000.0
             payload = detection_payload(
                 detections,
                 source_header=message.header,
                 corrected_frame=self._corrected_frame,
                 correct_upside_down=self._correct_upside_down,
+                point_count=len(points),
+                processing_ms=processing_ms,
             )
             json_message = String()
             json_message.data = json.dumps(payload, separators=(",", ":"), sort_keys=True)
