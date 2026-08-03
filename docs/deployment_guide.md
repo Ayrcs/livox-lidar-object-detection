@@ -91,6 +91,10 @@ Le point d'entrée source ROS Foxy puis ajoute `/usr/local` à
 préfixe. Sans cette étape, `ros2 launch` ne voit que les paquets de
 `/opt/ros/foxy`.
 
+La couche applicative expose également le console script installé par `pip`
+dans `/usr/local/lib/lidar_detection_ros`, le répertoire `libexec` attendu par
+ROS 2 Foxy pour lancer un nœud Python.
+
 ## Test du GPU et des versions
 
 ```bash
