@@ -66,6 +66,10 @@ Les sorties vont dans `runs/`, avec versions de l'environnement, matériel,
 commit, logs et checkpoints. Ne pas promouvoir ce checkpoint en modèle v1 de
 production avant des acquisitions diversifiées.
 
+Le script fixe `CUBLAS_WORKSPACE_CONFIG=:4096:8`. Cette variable est nécessaire
+à cuBLAS lorsque les algorithmes déterministes de PyTorch sont activés ; elle
+évite qu'un entraînement reproductible échoue dès la première couche linéaire.
+
 ## Configuration spécifique au ballon
 
 La zone pilote couvre X de 0,4 à 6 m et Y de -1 à 1 m. Les piliers mesurent
