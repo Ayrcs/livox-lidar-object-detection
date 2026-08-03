@@ -161,7 +161,7 @@ default_hooks = dict(
     checkpoint=dict(
         type='CheckpointHook',
         interval=5,
-        save_best='ball/recall_center_0p30m',
+        save_best='ball/f1_center_0p30m',
         rule='greater'),
     sampler_seed=dict(type='DistSamplerSeedHook'))
 env_cfg = dict(cudnn_benchmark=False, mp_cfg=dict(mp_start_method='fork', opencv_num_threads=0))

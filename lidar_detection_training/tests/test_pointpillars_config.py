@@ -26,6 +26,7 @@ def test_single_class_anchor_configuration(relative_path: str) -> None:
     assert isinstance(config.model.train_cfg.assigner, dict)
     assert config.randomness.seed == 20260803
     assert config.randomness.deterministic is False
+    assert config.default_hooks.checkpoint.save_best == "ball/f1_center_0p30m"
     if "overfit" in relative_path:
         assert config.train_dataloader.dataset.ann_file == "ball_infos_overfit.pkl"
         assert config.val_dataloader.dataset.ann_file == "ball_infos_overfit.pkl"

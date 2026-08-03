@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "experiment": "pointpillars_ball_overfit_v1",
+  "run_timestamp": "2026-08-03T10:57:12Z",
+  "git_commit": "d9668ac",
+  "dataset": "ball_lidar_pilot_v1_mmdet3d",
+  "split": "overfit",
+  "samples": 80,
+  "positive_samples": 64,
+  "negative_samples": 16,
+  "epochs": 30,
+  "epoch_20": {
+    "precision_center_0p30m": 1.0,
+    "recall_center_0p30m": 1.0,
+    "f1_center_0p30m": 1.0,
+    "median_center_error_m": 0.0118,
+    "false_positives_per_sample": 0.0
+  },
+  "epoch_30": {
+    "loss": 0.0035,
+    "loss_cls": 0.0009,
+    "loss_bbox": 0.0026,
+    "precision_center_0p30m": 1.0,
+    "recall_center_0p30m": 1.0,
+    "f1_center_0p30m": 1.0,
+    "median_center_error_m": 0.0093,
+    "false_positives_per_sample": 0.0
+  },
+  "peak_logged_gpu_memory_mib": 445,
+  "status": "passed",
+  "limitations": [
+    "Metrics are measured on the same 80 samples used for training.",
+    "This run proves pipeline learnability, not generalization."
+  ]
+}
