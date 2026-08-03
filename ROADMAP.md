@@ -731,20 +731,20 @@ Ces durées sont des ordres de grandeur pour une personne et dépendent surtout 
 
 ## 10. Checklist de démarrage immédiat
 
-- [ ] Confirmer la distribution ROS 2 et le calculateur qui exécutera l'inférence.
-- [ ] Confirmer `/utlidar/cloud`, son type, ses champs, sa fréquence et son QoS.
+- [x] Confirmer la distribution ROS 2 et le calculateur qui exécutera l'inférence.
+- [x] Confirmer `/utlidar/cloud`, son type, ses champs, sa fréquence et son QoS.
 - [ ] Enregistrer 10 sessions courtes avec ballon à distances connues.
-- [ ] Écrire le visualiseur et `measure_ball_returns.py`.
-- [ ] Décider du repère canonique et de la zone d'intérêt.
-- [ ] Implémenter la baseline géométrique.
-- [ ] Choisir l'outil et rédiger la convention d'annotation.
-- [ ] Annoter un pilote de 500 à 1 500 trames.
-- [ ] Créer le split par session et les tests de validation du dataset.
-- [ ] Faire sur-apprendre un mini-lot avec PointPillars.
+- [x] Écrire le visualiseur et `measure_ball_returns.py`.
+- [x] Décider du repère canonique et de la zone d'intérêt.
+- [x] Implémenter la baseline géométrique.
+- [x] Choisir l'outil et rédiger la convention d'annotation.
+- [x] Annoter un pilote de 500 à 1 500 trames.
+- [x] Créer le split par session et les tests de validation du dataset.
+- [x] Faire sur-apprendre un mini-lot avec PointPillars.
 - [ ] Mesurer une première courbe rappel-distance.
 - [ ] Définir les critères d'acceptation ballon v1.
-- [ ] Créer le squelette du nœud ROS avec un backend factice.
-- [ ] Remplacer le backend factice par le modèle validé.
+- [x] Créer le squelette du nœud ROS avec un backend factice.
+- [x] Remplacer le backend factice par le modèle validé.
 - [ ] Rejouer un rosbag complet et mesurer latence, drops et faux positifs.
 
 ## 11. Définition de « terminé » pour la première version
