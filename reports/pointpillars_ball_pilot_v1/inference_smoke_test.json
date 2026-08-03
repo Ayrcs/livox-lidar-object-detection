@@ -1,0 +1,19 @@
+{
+  "checkpoint_sha256": "33f2bc0f652f5a473b8c7d690bb2a578d7dc65231c3199a22f9373668e2a5944",
+  "detections": [
+    {
+      "class_id": 0,
+      "class_name": "ball",
+      "score": 0.20433397591114044,
+      "x": 4.962460994720459,
+      "y": 0.36487168073654175,
+      "z": -1.2101421356201172
+    }
+  ],
+  "device": "cuda:0",
+  "first_call_inference_ms": 843.9653009991162,
+  "point_count": 20042,
+  "sample_id": "20260730_indoor_ball_5m_front_static_run01_000001",
+  "score_threshold": 0.1,
+  "status": "passed"
+}
