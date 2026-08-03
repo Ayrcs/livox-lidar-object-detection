@@ -1,56 +1,62 @@
-# Détection 3D d'objets LiDAR pour Unitree G1
+**English** | [Français](README.fr.md)
 
-## Avant-propos
+# LiDAR 3D Object Detection for the Unitree G1
 
-Ce projet fournit une chaîne complète et reproductible pour apprendre à
-détecter des objets dans le nuage de points du LiDAR Livox Mid-360 d'un
-Unitree G1, puis exécuter le modèle sur le GPU NVIDIA Orin du robot avec
-ROS 2.
+An end-to-end, reproducible pipeline for training LiDAR-based 3D object
+detectors and deploying them on a Unitree G1 with ROS 2 and NVIDIA Jetson.
 
-Le premier cas traité est un ballon de football de taille 5. Le dépôt couvre
-les deux parties du travail :
+The project currently targets a size-5 football observed by the robot's Livox
+Mid-360. It covers the complete lifecycle:
 
-1. transformer des enregistrements ROS 2 en données annotées, entraîner et
-   évaluer un modèle PointPillars sur une machine NVIDIA ;
-2. charger le modèle dans un conteneur sur le G1, recevoir le PointCloud2 en
-   direct et publier des coordonnées numériques ainsi que des boîtes 3D pour
-   Foxglove ou RViz.
+1. record ROS 2 point clouds and preserve their acquisition metadata;
+2. extract a deterministic, ROS-independent dataset;
+3. annotate 3D bounding boxes and split data by recording session;
+4. train and evaluate PointPillars with MMDetection3D on an NVIDIA workstation;
+5. package the selected checkpoint with its configuration and provenance;
+6. run GPU inference on the G1's NVIDIA Orin and publish ROS 2 outputs for
+   downstream software, Foxglove, and RViz.
 
-Le checkpoint livré est un **modèle pilote**, pas un modèle de production. Il
-a validé toute la chaîne sur quelques scènes statiques en intérieur, mais les
-essais réels montrent encore une confiance parfois faible sur le ballon et des
-scores élevés sur certains artefacts. Il faut maintenant l'entraîner avec des
-scènes, positions et négatifs difficiles beaucoup plus variés. Cette limite est
-importante : une bonne métrique sur quatre sessions proches ne garantit pas la
-généralisation dans un nouvel environnement.
+## Project status
 
-La même architecture pourra accueillir d'autres objets, mais le pilote actuel
-est configuré pour la classe `ball` et une boîte fixe de 22 cm. Ajouter une
-classe demande de créer sa taxonomie et ses annotations, d'adapter la
-configuration MMDetection3D, puis de déclarer les nouvelles classes et tailles
-dans le paquet de modèle et le nœud d'inférence.
+The technical pipeline is operational from data capture to live visualization.
+The bundled checkpoint is deliberately labeled a **pilot model**, not a
+production model. It was trained on a small set of static indoor sessions and
+successfully validates the integration, but live testing has exposed weak
+confidence on some ball detections and high-confidence false positives on
+unseen artifacts.
 
-## Ce qui entre et ce qui sort
+The next milestone is therefore data quality and generalization rather than
+runtime integration: collect varied environments, include hard negatives,
+create independent train/validation/test splits, retrain, and evaluate the
+failure cases explicitly.
 
-### Entraînement
+The architecture can be extended to other object classes. The current pilot is
+configured specifically for class `ball` and a fixed 0.22 m bounding box.
+Adding another class requires a versioned taxonomy and annotations, an adapted
+MMDetection3D configuration, and matching class and box metadata in the model
+package and inference node.
 
-| Élément | Entrée | Sortie |
+## Inputs and outputs
+
+### Training pipeline
+
+| Stage | Input | Output |
 |---|---|---|
-| Acquisition | Rosbags ROS 2 et métadonnées de session | Données brutes immuables et sommes SHA-256 |
-| Préparation | `/utlidar/cloud_livox_mid360` de type `sensor_msgs/msg/PointCloud2` | Nuages canoniques corrigés, métadonnées et manifeste |
-| Annotation | Nuages canoniques et boîtes 3D relues | JSON par échantillon : classe, centre, dimensions et lacet |
-| Entraînement | Fichiers `x, y, z, intensity`, annotations et split par sessions | Checkpoints, logs, métriques et environnement figé |
-| Livraison | Checkpoint sélectionné et configuration | Paquet versionné sous `model_registry/` |
+| Data capture | ROS 2 bags and session metadata | Immutable raw recordings and SHA-256 checksums |
+| Canonical extraction | `/utlidar/cloud_livox_mid360` as `sensor_msgs/msg/PointCloud2` | Corrected point clouds, per-sample metadata, and a dataset manifest |
+| Annotation | Canonical clouds and reviewed 3D boxes | JSON annotations with class, center, dimensions, and yaw |
+| Training | `x, y, z, intensity` points, annotations, and session-level splits | Checkpoints, logs, metrics, and a locked software environment |
+| Model release | Selected checkpoint and resolved configuration | Immutable package under `model_registry/` |
 
-### Inférence sur le robot
+### Live inference
 
-Entrée par défaut :
+Default input:
 
 ```text
 /utlidar/cloud_livox_mid360  sensor_msgs/msg/PointCloud2
 ```
 
-Sorties :
+Published outputs:
 
 ```text
 /lidar/detections_json       std_msgs/msg/String
@@ -58,140 +64,143 @@ Sorties :
 /diagnostics                 diagnostic_msgs/msg/DiagnosticArray
 ```
 
-Le JSON contient la classe, le score, le centre et la taille de chaque boîte,
-le temps de traitement et les compteurs de trames reçues ou remplacées. Les
-coordonnées corrigées suivent la convention `X avant, Y gauche, Z haut`. Les
-marqueurs dessinent une boîte rouge et une étiquette superposables au nuage
-dans Foxglove ou RViz.
+The JSON output includes class names, confidence scores, 3D centers, box sizes,
+processing time, and received/dropped frame counters. Corrected coordinates use
+`X forward, Y left, Z up`. The marker topic publishes red 3D wireframes and
+labels that can be overlaid directly on the point cloud in Foxglove or RViz.
 
-## Architecture
+## System architecture
 
 ```text
-Unitree G1 / Livox
-        │ rosbag PointCloud2
-        ▼
-Extraction canonique ─► annotation ─► split par sessions
-        │                                      │
-        │                                      ▼
-        │                         entraînement PointPillars
-        │                                      │
-        │                                      ▼
-        └──────────────────────────── paquet de modèle versionné
+Unitree G1 / Livox Mid-360
+            │ ROS 2 PointCloud2 bags
+            ▼
+Canonical extraction ─► annotation ─► session-level split
+            │                                  │
+            │                                  ▼
+            │                       PointPillars training
+            │                                  │
+            │                                  ▼
+            └────────────────────── versioned model package
                                                │
                                                ▼
-                             conteneur d'inférence sur l'Orin
+                                  Orin inference container
                                                │
-                         ┌─────────────────────┼──────────────────┐
-                         ▼                     ▼                  ▼
-                       JSON              marqueurs 3D        diagnostics
+                            ┌──────────────────┼──────────────────┐
+                            ▼                  ▼                  ▼
+                          JSON          3D markers         diagnostics
 ```
 
-Le code d'entraînement ne dépend pas du nœud ROS. Le nœud ne connaît ni les
-rosbags ni l'organisation du dataset : leur contrat commun est le paquet de
-modèle contenant le checkpoint, sa configuration, ses classes, ses métriques
-et ses empreintes.
+Training code is independent from the ROS 2 node. The runtime does not need to
+know how the dataset or rosbags are organized. Their interface is a versioned
+model package containing the checkpoint, configuration, classes, metrics,
+environment information, and checksums.
 
-## Machines utilisées
+## Reference platforms
 
-- **Acquisition et inférence :** Unitree G1, NVIDIA Orin NX, ARM64,
-  Ubuntu 20.04, L4T R35.3.1 et ROS 2 Foxy.
-- **Entraînement de référence :** Ubuntu 22.04 x86_64 avec RTX 3090 24 Go,
-  Docker et NVIDIA Container Runtime.
-- **Préparation et tests :** Python 3.10 ou plus récent. Un Mac ou une machine
-  sans CUDA peut préparer et contrôler les données, mais l'entraînement
-  MMDetection3D officiel nécessite un GPU NVIDIA.
+- **Capture and inference:** Unitree G1, NVIDIA Orin NX, ARM64, Ubuntu 20.04,
+  L4T R35.3.1, and ROS 2 Foxy.
+- **Reference training host:** Ubuntu 22.04 x86_64, NVIDIA RTX 3090 24 GB,
+  Docker, and NVIDIA Container Runtime.
+- **Data preparation and tests:** Python 3.10 or newer. macOS and CPU-only hosts
+  can prepare and validate data, but the reference MMDetection3D training stack
+  requires an NVIDIA GPU.
 
-Les versions exactes de la station sont consignées dans
+The training workstation is recorded in
 [`docs/training_machine_trojalab02.md`](docs/training_machine_trojalab02.md).
-La pile Cyclone DDS du G1 est particulière : lire impérativement la section de
-compatibilité dans
-[`docs/deployment_guide.md`](docs/deployment_guide.md) avant de construire
-l'image pour un autre robot.
+The G1 uses a non-default Cyclone DDS stack. Read the compatibility section in
+[`docs/deployment_guide.md`](docs/deployment_guide.md) before building the
+runtime for a different robot or software image.
 
-## Organisation du dépôt
+## Repository layout
 
 ```text
-├── README.md                      point d'entrée et démarrage rapide
-├── ROADMAP.md                     architecture cible, décisions et étapes
-├── docs/                          protocoles, guides et rapports lisibles
-├── data/                          données locales brutes/traitées, hors Git
-├── remote-g1/                     zone locale de transfert depuis le robot
-├── data_manifests/                description versionnée des données
-│   ├── sessions/                  conditions de chaque acquisition
-│   ├── datasets/                  composition et provenance des datasets
-│   ├── annotations/               versions des jeux d'annotations
-│   └── environments/              machines et environnements d'expérience
-├── lidar_detection_training/      préparation, annotation, métriques, entraînement
-│   ├── configs/                   données, splits, modèles et expériences
-│   ├── src/lidar_training/        bibliothèque Python testable
-│   ├── tools/                     commandes de préparation et d'entraînement
-│   └── tests/                     tests du pipeline de données
-├── lidar_detection_ros/           paquet ROS 2 d'inférence
-│   ├── launch/                    lancement paramétrable
-│   ├── lidar_detection_ros/       backend, adaptation PointCloud2 et messages
-│   ├── tools/                     inférence hors ROS sur un nuage `.bin`
-│   └── test/                      tests du runtime ROS
-├── docker/                        images d'entraînement et d'inférence Jetson
-├── model_registry/                modèles livrables, manifests et SHA-256
-├── reports/                       métriques et preuves versionnées
-└── runs/                          sorties locales d'entraînement, hors Git
+├── README.md                      English project overview and quick start
+├── README.fr.md                   French project overview and quick start
+├── ROADMAP.md                     target architecture, decisions, and milestones
+├── docs/                          protocols, operational guides, and reports
+├── data/                          local raw/processed data, excluded from Git
+├── remote-g1/                     local staging area for files copied from the G1
+├── data_manifests/                version-controlled dataset provenance
+│   ├── sessions/                  capture conditions for each recording
+│   ├── datasets/                  dataset composition and source lineage
+│   ├── annotations/               annotation-set versions
+│   └── environments/              experiment machines and environments
+├── lidar_detection_training/      preparation, annotation, metrics, and training
+│   ├── configs/                   data, split, model, and experiment configs
+│   ├── src/lidar_training/        testable Python library
+│   ├── tools/                     preparation and training entry points
+│   └── tests/                     data-pipeline tests
+├── lidar_detection_ros/           ROS 2 inference package
+│   ├── launch/                    parameterized launch file
+│   ├── lidar_detection_ros/       backend, PointCloud2 adapter, and publishers
+│   ├── tools/                     offline inference on a `.bin` cloud
+│   └── test/                      runtime and ROS-message tests
+├── docker/                        training and Jetson inference images
+├── model_registry/                releasable models, manifests, and checksums
+├── reports/                       version-controlled metrics and evidence
+└── runs/                          local training outputs, excluded from Git
 ```
 
-`data/`, `remote-g1/` et `runs/` peuvent devenir volumineux et restent hors de
-Git. Les manifestes, configurations, rapports et petits modèles explicitement
-autorisés sont versionnés pour garder la traçabilité.
+`data/`, `remote-g1/`, and `runs/` may become large and are intentionally kept
+out of Git. Small explicitly approved checkpoints, manifests, configurations,
+and reports remain version-controlled to preserve reproducibility.
 
-## Documentation
+## Documentation map
 
-### Comprendre le capteur et les données
+Most detailed project notes were written during the original French
+development workflow. Filenames and commands are stable; the English summary
+below explains where to start.
 
-- [`ROADMAP.md`](ROADMAP.md) : vision globale, choix techniques et critères de
-  réussite.
-- [`docs/sensor_inventory.md`](docs/sensor_inventory.md) : système, topic,
-  champs, fréquence, QoS, repères et horodatage réellement observés.
-- [`docs/ball_visibility_report.md`](docs/ball_visibility_report.md) : nombre
-  de retours LiDAR sur le ballon selon la distance.
-- [`docs/data_collection_protocol.md`](docs/data_collection_protocol.md) :
-  scénarios à enregistrer et règles de conservation des rosbags.
-- [`docs/session_metadata_template.yaml`](docs/session_metadata_template.yaml) :
-  métadonnées à copier dans chaque session.
-- [`docs/canonical_data_format.md`](docs/canonical_data_format.md) : format
-  indépendant de ROS et correction du montage tête en bas.
+### Sensor and data
 
-### Annoter et établir une référence
+- [`ROADMAP.md`](ROADMAP.md) — target architecture, engineering decisions, and
+  delivery criteria.
+- [`docs/sensor_inventory.md`](docs/sensor_inventory.md) — measured system,
+  topic, fields, frequency, QoS, frames, and timestamp behavior.
+- [`docs/ball_visibility_report.md`](docs/ball_visibility_report.md) — measured
+  LiDAR returns on the ball at different distances.
+- [`docs/data_collection_protocol.md`](docs/data_collection_protocol.md) —
+  recording scenarios and raw-data preservation rules.
+- [`docs/session_metadata_template.yaml`](docs/session_metadata_template.yaml)
+  — metadata template copied into every recording session.
+- [`docs/canonical_data_format.md`](docs/canonical_data_format.md) —
+  ROS-independent dataset format and upside-down sensor correction.
 
-- [`docs/annotation_guide.md`](docs/annotation_guide.md) : convention des boîtes
-  3D, format JSON, difficultés et contrôle humain.
-- [`docs/preannotation_report.md`](docs/preannotation_report.md) : méthode et
-  limites des préannotations géométriques.
-- [`docs/geometric_baseline_report.md`](docs/geometric_baseline_report.md) :
-  résultats du détecteur sans apprentissage.
+### Annotation and baseline
 
-### Entraîner et évaluer
+- [`docs/annotation_guide.md`](docs/annotation_guide.md) — 3D box convention,
+  JSON schema, difficulty levels, and human review rules.
+- [`docs/preannotation_report.md`](docs/preannotation_report.md) — geometric
+  pre-annotation method and limitations.
+- [`docs/geometric_baseline_report.md`](docs/geometric_baseline_report.md) —
+  evaluation of the non-learning baseline.
 
-- [`docs/training_guide.md`](docs/training_guide.md) : environnement Docker,
-  commandes PointPillars et règles de reproductibilité.
-- [`docs/training_machine_trojalab02.md`](docs/training_machine_trojalab02.md) :
-  machine NVIDIA utilisée.
-- [`docs/pointpillars_overfit_report.md`](docs/pointpillars_overfit_report.md) :
-  test de mémorisation du mini-dataset.
-- [`docs/pointpillars_pilot_report.md`](docs/pointpillars_pilot_report.md) :
-  métriques et limites du premier modèle.
-- [`docs/model_card_template.md`](docs/model_card_template.md) : fiche à remplir
-  pour toute nouvelle version de modèle.
+### Training and evaluation
 
-### Déployer et visualiser
+- [`docs/training_guide.md`](docs/training_guide.md) — Docker environment,
+  PointPillars commands, dataset requirements, and reproducibility rules.
+- [`docs/training_machine_trojalab02.md`](docs/training_machine_trojalab02.md)
+  — reference NVIDIA workstation.
+- [`docs/pointpillars_overfit_report.md`](docs/pointpillars_overfit_report.md) —
+  mini-dataset overfit check.
+- [`docs/pointpillars_pilot_report.md`](docs/pointpillars_pilot_report.md) —
+  pilot metrics, live observations, and known limitations.
+- [`docs/model_card_template.md`](docs/model_card_template.md) — required model
+  documentation template.
 
-- [`docs/deployment_guide.md`](docs/deployment_guide.md) : construction Jetson,
-  compatibilité Cyclone DDS, lancement et diagnostic.
-- [`docs/foxglove_visualization.md`](docs/foxglove_visualization.md) : ajout du
-  nuage, des boîtes rouges et du JSON dans Foxglove.
-- [`model_registry/README.md`](model_registry/README.md) : contenu obligatoire
-  d'un paquet de modèle.
+### Deployment and visualization
 
-## Installation pour préparer les données et lancer les tests
+- [`docs/deployment_guide.md`](docs/deployment_guide.md) — Jetson build,
+  Cyclone DDS compatibility, launch procedure, and troubleshooting.
+- [`docs/foxglove_visualization.md`](docs/foxglove_visualization.md) — point
+  cloud, red detection boxes, and JSON visualization in Foxglove.
+- [`model_registry/README.md`](model_registry/README.md) — model-package
+  requirements.
 
-Depuis une machine avec Python 3.10 ou plus récent :
+## Install the data tools and run the tests
+
+Python 3.10 or newer is required for the training utilities:
 
 ```bash
 git clone https://github.com/Ayrcs/livox-lidar-object-detection.git
@@ -203,19 +212,20 @@ python -m pip install --upgrade pip
 python -m pip install -e './lidar_detection_training[test,rosbag,analysis]'
 ```
 
-Vérifier l'installation :
+Run the complete local test suite:
 
 ```bash
 PYTHONPATH=lidar_detection_ros:lidar_detection_training/src \
   python -m pytest -q lidar_detection_training/tests lidar_detection_ros/test
 ```
 
-## Préparer un dataset
+## Build a dataset
 
-1. Enregistrer plusieurs sessions en suivant le protocole d'acquisition.
-2. Conserver les rosbags sous `remote-g1/lidar_data/raw/` ou adapter le chemin.
-3. Créer les manifestes de session et vérifier leurs SHA-256.
-4. Extraire les nuages dans le format canonique :
+1. Record multiple independent sessions using the collection protocol.
+2. Store the rosbags under `remote-g1/lidar_data/raw/`, or update the configured
+   root path.
+3. Create session manifests and verify their SHA-256 checksums.
+4. Extract deterministic canonical samples:
 
 ```bash
 .venv/bin/python lidar_detection_training/tools/extract_canonical_dataset.py \
@@ -224,12 +234,11 @@ PYTHONPATH=lidar_detection_ros:lidar_detection_training/src \
   --output-dir data/processed/ball_lidar_feasibility_v1
 ```
 
-5. Produire éventuellement des préannotations, puis **relire humainement toutes
-   les boîtes et toutes les scènes négatives** selon le guide d'annotation.
-6. Définir les sessions d'entraînement, validation et test dans une nouvelle
-   configuration de split. Ne jamais répartir des trames voisines d'une même
-   session entre plusieurs splits.
-7. Construire puis vérifier le dataset MMDetection3D :
+5. Optionally generate geometric pre-annotations, then **review every box and
+   every negative frame manually** using the annotation guide.
+6. Define train, validation, and test sessions in a new split configuration.
+   Never place adjacent frames from the same recording in different splits.
+7. Build and validate the MMDetection3D dataset:
 
 ```bash
 .venv/bin/python lidar_detection_training/tools/build_pilot_dataset.py \
@@ -240,20 +249,20 @@ PYTHONPATH=lidar_detection_ros:lidar_detection_training/src \
   --report reports/pilot_dataset_v1/validation.json
 ```
 
-Ces commandes reproduisent le pilote actuel. Pour un nouveau dataset, créer des
-identifiants et chemins versionnés plutôt que remplacer silencieusement les
-fichiers `v1`.
+These commands reproduce the current pilot. New datasets should use new,
+versioned identifiers and paths rather than silently overwriting the `v1`
+artifacts.
 
-## Entraîner PointPillars
+## Train PointPillars
 
-Sur la machine NVIDIA, construire une fois l'image :
+Build the reference training image once on the NVIDIA workstation:
 
 ```bash
 docker build -f docker/training.Dockerfile \
   -t lidar-pointpillars-training:1.0 .
 ```
 
-Commencer par vérifier que le réseau sait mémoriser un petit sous-ensemble :
+First verify that the network can memorize a small subset:
 
 ```bash
 docker run --rm --gpus all --shm-size=8g \
@@ -262,7 +271,7 @@ docker run --rm --gpus all --shm-size=8g \
   bash lidar_detection_training/tools/run_pointpillars_training.sh overfit
 ```
 
-Puis lancer l'entraînement pilote :
+Then run the pilot experiment:
 
 ```bash
 docker run --rm --gpus all --shm-size=8g \
@@ -271,20 +280,20 @@ docker run --rm --gpus all --shm-size=8g \
   bash lidar_detection_training/tools/run_pointpillars_training.sh pilot
 ```
 
-Les checkpoints et journaux sont écrits dans `runs/`. Choisir le modèle sur un
-split de validation indépendant de l'entraînement, puis l'évaluer sur un test
-indépendant contenant aussi des scènes sans cible et des distracteurs. La loss
-d'entraînement seule ne permet pas de choisir un modèle.
+Checkpoints and logs are written to `runs/`. Select a checkpoint on a
+validation split that is independent from training, then report final numbers
+on a separate test set containing target-free scenes and hard distractors. A
+low training loss alone is not a model-selection criterion.
 
-Pour un modèle de ballon plus robuste, le nouveau dataset devra notamment
-contenir : plusieurs lieux et sols, pelouse, ballon immobile et roulant,
-différentes distances et positions latérales, robot immobile et mobile,
-occultations, trames sans ballon et objets provoquant actuellement de fortes
-fausses confiances. Les détails sont dans le guide d'entraînement.
+A stronger ball model should cover multiple sites and surfaces, including
+grass; stationary and rolling balls; different ranges and lateral positions;
+stationary and moving robot motion; occlusion; target-free frames; and every
+artifact that currently produces high-confidence false positives. See the
+training guide for the complete collection requirements.
 
-## Livrer un modèle
+## Package and release a model
 
-Chaque modèle accepté reçoit un dossier immuable, par exemple :
+Each accepted model is stored in a new immutable directory, for example:
 
 ```text
 model_registry/ball_pointpillars_v0.2.0/
@@ -298,15 +307,15 @@ model_registry/ball_pointpillars_v0.2.0/
 └── SHA256SUMS
 ```
 
-Le manifeste doit préciser les champs d'entrée, le repère, la transformation,
-la zone couverte, les classes, les tailles de boîtes, les versions logicielles
-et les limites connues. Le nœud refuse un paquet incomplet ou dont une empreinte
-ne correspond pas. Ne jamais remplacer le contenu d'une version déjà publiée :
-créer une nouvelle version.
+The manifest records input fields, coordinate convention, transforms, spatial
+range, classes, box sizes, software versions, training data, and known
+limitations. The runtime verifies `SHA256SUMS`, `model.pth`, and `config.py`
+before loading the package. Published versions are immutable: create a new
+version instead of replacing an existing model in place.
 
-## Installer et lancer l'inférence sur le G1
+## Build and run inference on the G1
 
-Cloner le dépôt sur le robot, puis construire les trois couches Docker :
+Clone the repository on the robot and build the three Docker layers:
 
 ```bash
 git clone https://github.com/Ayrcs/livox-lidar-object-detection.git
@@ -314,12 +323,12 @@ cd livox-lidar-object-detection
 sudo ./docker/build-jetson.sh
 ```
 
-La première construction de la base CUDA/MMDetection3D est longue. Les builds
-suivants réutilisent cette base. La couche DDS doit correspondre à la version
-de Cyclone réellement chargée sur le G1 ; le script actuel reproduit le robot
-de référence avec Cyclone DDS 0.10.2.
+The initial CUDA/MMDetection3D build is slow. Later builds reuse that base. The
+DDS layer must match the Cyclone DDS version actually loaded by the G1. The
+current build reproduces the reference robot with Cyclone DDS 0.10.2; do not
+assume that the system package version is the active runtime on another robot.
 
-Lancer le modèle pilote :
+Launch the bundled pilot model:
 
 ```bash
 sudo docker run --rm \
@@ -334,11 +343,11 @@ sudo docker run --rm \
     score_threshold:=0.10
 ```
 
-Le chargement initial du modèle sur l'Orin prend environ 15 à 20 secondes. Le
-nœud garde ensuite le modèle en mémoire et ne conserve que le nuage le plus
-récent afin de ne pas accumuler de retard.
+Initial model loading on the Orin takes approximately 15–20 seconds. The node
+then keeps the model in GPU memory and retains only the newest point cloud to
+avoid building a latency backlog.
 
-Dans un deuxième terminal du G1 :
+Inspect the outputs from a second terminal on the G1:
 
 ```bash
 ros2 topic echo /lidar/detections_json
@@ -346,25 +355,27 @@ ros2 topic hz /lidar/detections_json
 ros2 topic echo /diagnostics
 ```
 
-Pour Foxglove, lancer `rosbridge_websocket`, afficher
-`/utlidar/cloud_livox_mid360`, puis activer
-`/lidar/detection_markers` dans le même panneau 3D. Le guide Foxglove décrit
-les réglages et le diagnostic si aucune boîte n'apparaît.
+For Foxglove, start `rosbridge_websocket`, display
+`/utlidar/cloud_livox_mid360`, and enable `/lidar/detection_markers` in the same
+3D panel. Refer to the Foxglove guide if the JSON is published but no box is
+visible.
 
-## État actuel et prochaines étapes
+## Roadmap
 
-La chaîne technique est validée de bout en bout : acquisition, extraction,
-annotation pilote, entraînement sur RTX 3090, paquet de modèle, inférence CUDA
-sur Orin, publications ROS et affichage Foxglove.
+The end-to-end engineering path is validated: acquisition, deterministic
+extraction, pilot annotation, RTX 3090 training, model packaging, CUDA
+inference on the Orin, ROS 2 publication, and Foxglove visualization.
 
-Le travail prioritaire n'est plus l'intégration, mais la qualité du modèle :
+The next milestones are:
 
-1. enregistrer un dataset ballon diversifié avec davantage de négatifs
-   difficiles ;
-2. annoter et relire les nouvelles sessions ;
-3. créer des splits par sessions et lieux avec un vrai jeu de test ;
-4. réentraîner, calibrer le seuil et analyser les faux positifs par scénario ;
-5. seulement ensuite étendre la taxonomie à d'autres objets.
+1. collect a diverse ball dataset with substantially more hard negatives;
+2. review its annotations and build site/session-independent splits;
+3. retrain, calibrate the confidence threshold, and analyze false positives by
+   scenario;
+4. measure recall by range, center error, target-free false positives, latency,
+   and dropped frames on the G1;
+5. extend the taxonomy to additional object classes only after the ball model
+   generalizes reliably.
 
-Les résultats doivent toujours être interprétés avec la model card et les
-limites du dataset correspondant.
+Always interpret reported metrics together with the matching model card and
+dataset limitations.
