@@ -46,13 +46,15 @@ if TRAINING_IMPORTS_AVAILABLE:
 
         def process(self, data_batch, data_samples):
             for sample in data_samples:
-                prediction = sample.pred_instances_3d
-                ground_truth = sample.gt_instances_3d
-                scores = prediction.scores_3d.detach().cpu().numpy()
-                labels = prediction.labels_3d.detach().cpu().numpy()
+                prediction = _field(sample, "pred_instances_3d")
+                ground_truth = _field(sample, "gt_instances_3d")
+                scores = _field(prediction, "scores_3d").detach().cpu().numpy()
+                labels = _field(prediction, "labels_3d").detach().cpu().numpy()
                 keep = (scores >= self.score_threshold) & (labels == 0)
-                predicted_centers = prediction.bboxes_3d.center.detach().cpu().numpy()[keep]
-                true_centers = ground_truth.bboxes_3d.center.detach().cpu().numpy()
+                predicted_boxes = _field(prediction, "bboxes_3d")
+                expected_boxes = _field(ground_truth, "bboxes_3d")
+                predicted_centers = predicted_boxes.center.detach().cpu().numpy()[keep]
+                true_centers = expected_boxes.center.detach().cpu().numpy()
                 self.results.append(
                     _match_centers(predicted_centers, true_centers, self.match_distance_m)
                 )
@@ -73,6 +75,12 @@ if TRAINING_IMPORTS_AVAILABLE:
                 ),
                 "false_positives_per_sample": false_positive / max(len(results), 1),
             }
+
+
+def _field(container, name):
+    if isinstance(container, dict):
+        return container[name]
+    return getattr(container, name)
 
 
 def _match_centers(predicted, expected, threshold):

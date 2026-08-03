@@ -1,6 +1,15 @@
 import numpy as np
 
-from lidar_training.mmdet3d_dataset import _match_centers
+from lidar_training.mmdet3d_dataset import _field, _match_centers
+
+
+class Container:
+    value = 7
+
+
+def test_field_supports_dict_and_attribute_containers() -> None:
+    assert _field({"value": 3}, "value") == 3
+    assert _field(Container(), "value") == 7
 
 
 def test_match_centers_is_one_to_one() -> None:

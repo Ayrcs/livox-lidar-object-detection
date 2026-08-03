@@ -1,10 +1,5 @@
 _base_ = ['../models/pointpillars_ball_pilot.py']
 
-train_dataloader = dict(
-    batch_size=8,
-    num_workers=2,
-    dataset=dict(ann_file='ball_infos_overfit.pkl', pipeline={{_base_.train_pipeline}}))
-
 # No augmentation: this gate must prove that the model can memorize 80 samples.
 train_pipeline = [
     dict(type='LoadPointsFromFile', coord_type='LIDAR', load_dim=4, use_dim=4),
@@ -29,6 +24,11 @@ train_dataloader = dict(
         test_mode=False,
         metainfo={{_base_.metainfo}},
         box_type_3d='LiDAR'))
+
+# The overfit gate measures memorization on the same deliberately tiny subset.
+# The normal pilot config keeps the independent 5 m session for validation.
+val_dataloader = dict(dataset=dict(ann_file='ball_infos_overfit.pkl'))
+test_dataloader = val_dataloader
 
 train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=30, val_interval=5)
 work_dir = 'runs/pointpillars_ball_overfit_v1'
