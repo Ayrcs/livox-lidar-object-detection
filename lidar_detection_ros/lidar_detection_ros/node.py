@@ -13,10 +13,12 @@ import rclpy
 from rclpy.node import Node
 from rclpy.qos import HistoryPolicy, QoSProfile, ReliabilityPolicy
 from sensor_msgs.msg import PointCloud2
+from diagnostic_msgs.msg import DiagnosticArray
 from std_msgs.msg import String
 from visualization_msgs.msg import MarkerArray
 
 from lidar_detection_ros.backends import MMDetection3DBackend
+from lidar_detection_ros.diagnostics import diagnostic_array_message, diagnostic_values
 from lidar_detection_ros.messages import detection_payload, marker_array_message
 from lidar_detection_ros.latest_slot import LatestValueSlot
 from lidar_detection_ros.pointcloud_adapter import pointcloud2_to_model_array
@@ -30,6 +32,7 @@ class LidarDetectionNode(Node):
         self.declare_parameter("input_topic", "/utlidar/cloud_livox_mid360")
         self.declare_parameter("json_topic", "/lidar/detections_json")
         self.declare_parameter("marker_topic", "/lidar/detection_markers")
+        self.declare_parameter("diagnostics_topic", "/diagnostics")
         self.declare_parameter("corrected_frame", "lidar_corrected")
         self.declare_parameter("device", "cuda:0")
         self.declare_parameter("score_threshold", 0.10)
@@ -45,10 +48,11 @@ class LidarDetectionNode(Node):
 
         self._correct_upside_down = bool(self.get_parameter("correct_upside_down").value)
         self._corrected_frame = str(self.get_parameter("corrected_frame").value)
+        self._device = str(self.get_parameter("device").value)
         self._backend = MMDetection3DBackend(
             config_path=config_path,
             checkpoint_path=model_path,
-            device=str(self.get_parameter("device").value),
+            device=self._device,
             class_names=("ball",),
             score_threshold=float(self.get_parameter("score_threshold").value),
             fixed_box_sizes={"ball": (0.22, 0.22, 0.22)},
@@ -64,9 +68,13 @@ class LidarDetectionNode(Node):
         )
         json_topic = str(self.get_parameter("json_topic").value)
         marker_topic = str(self.get_parameter("marker_topic").value)
+        diagnostics_topic = str(self.get_parameter("diagnostics_topic").value)
         input_topic = str(self.get_parameter("input_topic").value)
         self._json_publisher = self.create_publisher(String, json_topic, 10)
         self._marker_publisher = self.create_publisher(MarkerArray, marker_topic, 10)
+        self._diagnostics_publisher = self.create_publisher(
+            DiagnosticArray, diagnostics_topic, 10
+        )
         self._latest_cloud: LatestValueSlot[PointCloud2] = LatestValueSlot()
         self._subscription = self.create_subscription(
             PointCloud2, input_topic, self._on_cloud_received, qos
@@ -114,6 +122,17 @@ class LidarDetectionNode(Node):
             )
             self._json_publisher.publish(json_message)
             self._marker_publisher.publish(markers)
+            diagnostics = diagnostic_array_message(
+                source_header=message.header,
+                values=diagnostic_values(
+                    device=self._device,
+                    processing_ms=processing_ms,
+                    received_frames=received_frames,
+                    dropped_frames=dropped_frames,
+                    detection_count=len(detections),
+                ),
+            )
+            self._diagnostics_publisher.publish(diagnostics)
         except Exception as exc:  # keep the ROS executor alive on a malformed frame
             self.get_logger().error(f"LiDAR inference failed: {exc}")
 

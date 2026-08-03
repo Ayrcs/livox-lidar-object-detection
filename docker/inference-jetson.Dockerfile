@@ -26,6 +26,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get update && apt-get install -y --no-install-recommends \
         ros-foxy-ros-base \
         ros-foxy-rmw-cyclonedds-cpp \
+        ros-foxy-diagnostic-msgs \
         ros-foxy-sensor-msgs \
         ros-foxy-std-msgs \
         ros-foxy-visualization-msgs \

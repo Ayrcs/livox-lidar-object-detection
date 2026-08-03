@@ -13,6 +13,7 @@ Il publie deux sorties complémentaires :
 ```text
 /lidar/detections_json       std_msgs/msg/String
 /lidar/detection_markers     visualization_msgs/msg/MarkerArray
+/diagnostics                 diagnostic_msgs/msg/DiagnosticArray
 ```
 
 Le JSON contient les coordonnées corrigées `X avant, Y gauche, Z haut`, la
@@ -24,6 +25,9 @@ une trame obsolète est remplacée au lieu d'augmenter la latence. Les marqueurs
 sont des cubes rouges exprimés directement
 dans le `frame_id` du PointCloud2. Foxglove et RViz peuvent donc les superposer
 au nuage sans transformation TF supplémentaire.
+
+`/diagnostics` publie les mêmes compteurs sous forme ROS standard avec l'état
+du modèle, le device, la latence et le nombre de détections.
 
 ## Environnement cible observé
 
