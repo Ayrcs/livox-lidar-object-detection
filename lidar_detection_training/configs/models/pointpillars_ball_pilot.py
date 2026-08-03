@@ -151,7 +151,11 @@ default_hooks = dict(
     timer=dict(type='IterTimerHook'),
     logger=dict(type='LoggerHook', interval=10),
     param_scheduler=dict(type='ParamSchedulerHook'),
-    checkpoint=dict(type='CheckpointHook', interval=5, save_best='ball/recall_center_0p30m'),
+    checkpoint=dict(
+        type='CheckpointHook',
+        interval=5,
+        save_best='ball/recall_center_0p30m',
+        rule='greater'),
     sampler_seed=dict(type='DistSamplerSeedHook'))
 env_cfg = dict(cudnn_benchmark=False, mp_cfg=dict(mp_start_method='fork', opencv_num_threads=0))
 log_level = 'INFO'
