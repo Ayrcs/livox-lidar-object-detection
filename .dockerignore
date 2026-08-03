@@ -1,12 +1,12 @@
 .git
 .idea
 .venv
+**/__pycache__
+**/.pytest_cache
 data
 remote-g1
-reports
 runs
-__pycache__
-*.pyc
-*.db3
 *.bag
+*.db3
 *.mcap
+*.pth
